@@ -68,37 +68,30 @@ function createApp() {
 
 function createBeforeEach() {
   router.beforeEach((to, from, next) => {
-    const isLoggedIn = store.getters["appData/isLoggedIn"];
-    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-
-    // If route requires authentication
-    if (requiresAuth) {
-      if (isLoggedIn) {
-        // Check if user has required permission
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
+      if (store.getters["appData/isLoggedIn"]) {
         if (to.meta.permission) {
           if (store.getters["appData/hasPermission"](to.meta.permission)) {
             next();
           } else {
-            // User doesn't have permission, redirect to User page
             next({ name: "User" });
           }
         } else {
-          // No specific permission required, allow access
           next();
         }
       } else {
-        // Not logged in, redirect to login
         next({ name: "Login" });
       }
     } else {
-      // Route doesn't require authentication
-      if (isLoggedIn && to.name === "Login") {
-        // User is logged in but trying to access login page, redirect to User
-        next({ name: "User" });
-      } else {
-        // Allow access to public routes
-        next();
-      }
+      next();
+    }
+    if (
+      !to.matched.some((record) => record.meta.requiresAuth) &&
+      store.getters["appData/isLoggedIn"]
+    ) {
+      next({ name: "User" });
+    } else {
+      next();
     }
   });
 }
