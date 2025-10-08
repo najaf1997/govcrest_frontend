@@ -1,10 +1,14 @@
 <template>
-  <div style="height: 100vh; background-color: #64748b">
+  <div style="height: 100vh" class="login-bg">
     <div
       class="h-100 align-items-center justify-content-center d-none d-md-flex"
     >
       <b-card
-        style="border-radius: 20px; border: 1px solid lightgrey"
+        style="
+          border-radius: 20px;
+          border: 3px solid #0c223a;
+          background-color: #f8fafc;
+        "
         class="px-1 m-0 d-none d-md-block"
       >
         <div class="mt-1 text-center">
@@ -13,11 +17,11 @@
 
         <b-card-title
           title-tag="h2"
-          class="font-weight-bolder text-colorBlack mb-50 mt-2 pr-5 mr-5"
+          class="font-weight-bolder text-center text-primary mb-50 mt-2 pr-5 mr-5"
         >
           Welcome to {{ this.appName }}.
         </b-card-title>
-        <b-card-text class="text-colorGray" style="font-size: 0.8rem">
+        <b-card-text style="font-size: 0.8rem; color: #1a1a1a">
           Please Enter your Credentials to access the Portal
         </b-card-text>
 
@@ -150,4 +154,16 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.login-bg {
+  height: 100vh;
+  background-image: linear-gradient(
+      rgba(19, 53, 90, 0.6),
+      rgba(19, 53, 90, 0.6)
+    ),
+    url("~@/assets/images/banner-img.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+</style>

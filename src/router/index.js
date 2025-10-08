@@ -51,6 +51,54 @@ const router = new VueRouter({
       },
     },
     {
+      path: "/company",
+      name: "Company",
+      component: () => import("@/views/company/Company.vue"),
+      meta: {
+        pageTitle: "Company",
+        breadcrumb: [
+          {
+            text: "Company",
+            active: true,
+          },
+        ],
+        requiresAuth: true,
+        permission: "show_company",
+      },
+    },
+    {
+      path: "/contract-status",
+      name: "ContractStatus",
+      component: () => import("@/views/contract-status/ContractStatus.vue"),
+      meta: {
+        pageTitle: "Contract Status",
+        breadcrumb: [
+          {
+            text: "Contract Status",
+            active: true,
+          },
+        ],
+        requiresAuth: true,
+        permission: "show_contract_status",
+      },
+    },
+    {
+      path: "/contract",
+      name: "Contract",
+      component: () => import("@/views/contract/Contract.vue"),
+      meta: {
+        pageTitle: "Contract",
+        breadcrumb: [
+          {
+            text: "Contract",
+            active: true,
+          },
+        ],
+        requiresAuth: true,
+        permission: "show_contract",
+      },
+    },
+    {
       path: "*",
       redirect: "/login",
     },

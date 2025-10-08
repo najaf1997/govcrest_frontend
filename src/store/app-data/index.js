@@ -53,6 +53,38 @@ export default {
           route: "Role",
         });
       }
+
+      if (state.user.permissions.hasOwnProperty("show_contract")) {
+        state.navMenuItems.push({
+          title: "Contract",
+          icon: "FileTextIcon",
+          route: "Contract",
+        });
+      }
+      const lookupTablesMenuItem = {
+        title: "Lookup Tables",
+        icon: "ToolIcon",
+        children: [],
+      };
+
+      if (state.user.permissions.hasOwnProperty("show_company")) {
+        state.navMenuItems.push(lookupTablesMenuItem);
+      }
+      if (state.user.permissions.hasOwnProperty("show_company")) {
+        lookupTablesMenuItem.children.push({
+          title: "Company",
+          route: "Company",
+        });
+      }
+      if (state.user.permissions.hasOwnProperty("show_contract_status")) {
+        if (!lookupTablesMenuItem.children.length) {
+          state.navMenuItems.push(lookupTablesMenuItem);
+        }
+        lookupTablesMenuItem.children.push({
+          title: "Contract Status",
+          route: "ContractStatus",
+        });
+      }
     },
   },
   actions: {
@@ -131,6 +163,87 @@ export default {
     },
     async deleteUser({ commit }, { pk }) {
       const res = await axiosIns.delete(`users/${pk}/`);
+      return res;
+    },
+    async getCompanys({ commit }, { pageNumber, name, username }) {
+      let url = `company/?page=${pageNumber}`;
+      if (name) {
+        url += `&name=${name}`;
+      }
+      if (username) {
+        url += `&username=${username}`;
+      }
+      const res = await axiosIns.get(url);
+      return res;
+    },
+    async getCompany({ commit }, { pk }) {
+      const res = await axiosIns.get(`company/${pk}/`);
+      return res;
+    },
+    async createCompany({ commit }, payload) {
+      const res = await axiosIns.post("company/", payload);
+      return res;
+    },
+    async updateCompany({ commit }, { payload, pk }) {
+      const res = await axiosIns.patch(`company/${pk}/`, payload);
+      return res;
+    },
+    async deleteCompany({ commit }, { pk }) {
+      const res = await axiosIns.delete(`company/${pk}/`);
+      return res;
+    },
+    async getContractStatuses({ commit }, { pageNumber, name, description }) {
+      let url = `contract-status/?page=${pageNumber}`;
+      if (name) {
+        url += `&name=${name}`;
+      }
+      if (description) {
+        url += `&description=${description}`;
+      }
+      const res = await axiosIns.get(url);
+      return res;
+    },
+    async getContractStatus({ commit }, { pk }) {
+      const res = await axiosIns.get(`contract-status/${pk}/`);
+      return res;
+    },
+    async createContractStatus({ commit }, payload) {
+      const res = await axiosIns.post("contract-status/", payload);
+      return res;
+    },
+    async updateContractStatus({ commit }, { payload, pk }) {
+      const res = await axiosIns.patch(`contract-status/${pk}/`, payload);
+      return res;
+    },
+    async deleteContractStatus({ commit }, { pk }) {
+      const res = await axiosIns.delete(`contract-status/${pk}/`);
+      return res;
+    },
+    async getContracts({ commit }, { pageNumber, notice_id, title }) {
+      let url = `contract/?page=${pageNumber}`;
+      if (notice_id) {
+        url += `&notice_id=${notice_id}`;
+      }
+      if (title) {
+        url += `&title=${title}`;
+      }
+      const res = await axiosIns.get(url);
+      return res;
+    },
+    async getContract({ commit }, { pk }) {
+      const res = await axiosIns.get(`contract/${pk}/`);
+      return res;
+    },
+    async createContract({ commit }, payload) {
+      const res = await axiosIns.post("contract/", payload);
+      return res;
+    },
+    async updateContract({ commit }, { payload, pk }) {
+      const res = await axiosIns.patch(`contract/${pk}/`, payload);
+      return res;
+    },
+    async deleteContract({ commit }, { pk }) {
+      const res = await axiosIns.delete(`contract/${pk}/`);
       return res;
     },
   },
