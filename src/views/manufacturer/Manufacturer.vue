@@ -4,8 +4,8 @@
       <b-button
         variant="primary"
         pill
-        @click="createUser"
-        v-if="hasPermission('create_user')"
+        @click="createManufacturer"
+        v-if="hasPermission('create_manufacturer')"
       >
         <feather-icon icon="PlusIcon" class="mr-50" />
         <span class="align-middle">Create</span>
@@ -61,10 +61,10 @@
       <b-table
         responsive="sm"
         :fields="fields"
-        :items="users"
+        :items="manufacturers"
         details-td-class="m-0 p-0"
         small
-        v-if="hasPermission('read_user')"
+        v-if="hasPermission('read_manufacturer')"
         :per-page="0"
       >
         <template #cell(created_by_data)="row">
@@ -77,6 +77,9 @@
             row.item.updated_by_data ? row.item.updated_by_data.username : ""
           }}
         </template>
+        <template #cell(category)="row">
+          {{ row.item.category ? row.item.category.name : "" }}
+        </template>
         <template #cell(role_data)="row">
           {{ row.item.role_data ? row.item.role_data.name : "" }}
         </template>
@@ -85,14 +88,24 @@
             row.item.organization_data ? row.item.organization_data.name : ""
           }}
         </template>
+        <template #cell(link)="row">
+          <a
+            v-if="row.item.link"
+            :href="row.item.link"
+            target="_blank"
+            class="text-primary"
+          >
+            Visit Website
+          </a>
+        </template>
         <template #cell(manage)="row">
           <b-button
             variant="info"
             pill
             size="sm"
             class="mr-50"
-            @click="editUser(row.item)"
-            v-if="hasPermission('update_user')"
+            @click="editManufacturer(row.item)"
+            v-if="hasPermission('update_manufacturer')"
           >
             Edit
           </b-button>
@@ -101,8 +114,8 @@
             pill
             size="sm"
             class="mr-50"
-            @click="removeUser(row.item)"
-            v-if="hasPermission('delete_user')"
+            @click="removeManufacturer(row.item)"
+            v-if="hasPermission('delete_manufacturer')"
           >
             Delete
           </b-button>
@@ -115,14 +128,14 @@
         :per-page="perPage"
       ></b-pagination>
     </b-card>
-    <CreateUserModal
+    <CreateManufacturerModal
       @modalClosed="onModalClosed"
-      :key="`create-${createUserModalCount}`"
+      :key="`create-${createManufacturerModalCount}`"
     />
-    <EditUserModal
-      :user="user"
+    <EditManufacturerModal
+      :manufacturer="manufacturer"
       @modalClosed="onModalClosed"
-      :key="`edit-${editUserModalCount}`"
+      :key="`edit-${editManufacturerModalCount}`"
     />
   </div>
 </template>
@@ -130,33 +143,34 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import VueSelectPaginated from "@/components/ui/VueSelectPaginated.vue";
-import CreateUserModal from "@/components/user/CreateUserModal.vue";
-import EditUserModal from "@/components/user/EditUserModal.vue";
+import CreateManufacturerModal from "@/components/manufacturer/CreateManufacturerModal.vue";
+import EditManufacturerModal from "@/components/manufacturer/EditManufacturerModal.vue";
+
 import util from "@/util.js";
 
 export default {
   components: {
-    CreateUserModal,
-    EditUserModal,
+    CreateManufacturerModal,
+    EditManufacturerModal,
     VueSelectPaginated,
   },
   data() {
     return {
       fields: [
-        { key: "full_name", label: "Full Name" },
-        { key: "username", label: "Username" },
-        { key: "mobile", label: "Mobile" },
+        { key: "name", label: "Name" },
+        { key: "category", label: "Category" },
         { key: "email", label: "Email" },
-        { key: "role_data", label: "Role" },
+        { key: "phone", label: "Phone" },
+        { key: "link", label: "Website" },
         { key: "manage", label: "Manage" },
       ],
       currentPage: 1,
       perPage: 0,
       totalItems: 0,
-      users: [],
-      user: null,
-      editUserModalCount: 0,
-      createUserModalCount: 0,
+      manufacturers: [],
+      manufacturer: null,
+      editManufacturerModalCount: 0,
+      createManufacturerModalCount: 0,
       searchTypes: [
         { value: 1, name: "Name" },
         { value: 2, name: "Username" },
@@ -175,8 +189,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      getUsers: "appData/getUsers",
-      deleteUser: "appData/deleteUser",
+      getManufacturers: "appData/getManufacturers",
+      deleteManufacturer: "appData/deleteManufacturer",
     }),
     async search() {
       if (this.searchType) {
@@ -197,33 +211,33 @@ export default {
     },
     async fetchPaginatedData() {
       try {
-        const res = await this.getUsers({
+        const res = await this.getManufacturers({
           pageNumber: this.currentPage,
           name: this.name,
           username: this.username,
         });
-        this.users = res.data.results;
+        this.manufacturers = res.data.results;
         this.totalItems = res.data.count;
         this.perPage = res.data.per_page;
       } catch (error) {
         this.displayError(error);
       }
     },
-    createUser() {
-      this.createUserModalCount += 1;
+    createManufacturer() {
+      this.createManufacturerModalCount += 1;
       this.$nextTick(() => {
-        this.$bvModal.show("create-user-modal");
+        this.$bvModal.show("create-manufacturer-modal");
       });
     },
-    editUser(user) {
-      this.user = user;
-      this.editUserModalCount += 1;
+    editManufacturer(manufacturer) {
+      this.manufacturer = manufacturer;
+      this.editManufacturerModalCount += 1;
       this.$nextTick(() => {
-        this.$bvModal.show("edit-user-modal");
+        this.$bvModal.show("edit-manufacturer-modal");
       });
     },
-    async removeUser(user) {
-      this.user = user;
+    async removeManufacturer(manufacturer) {
+      this.manufacturer = manufacturer;
 
       this.$swal({
         title: "Are you sure?",
@@ -239,12 +253,12 @@ export default {
       }).then(async (result) => {
         if (result.value) {
           try {
-            const res = await this.deleteUser({
-              pk: this.user.id,
+            const res = await this.deleteManufacturer({
+              pk: this.manufacturer.id,
             });
-            if (res.status === 204) {
+            if (res.status === 200) {
               this.$swal({
-                title: "User deleted successfully",
+                title: "Manufacturer deleted successfully",
                 icon: "success",
               });
               if (

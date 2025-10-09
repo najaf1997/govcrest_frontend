@@ -4,8 +4,8 @@
       <b-button
         variant="primary"
         pill
-        @click="createUser"
-        v-if="hasPermission('create_user')"
+        @click="createManufacturerCategory"
+        v-if="hasPermission('create_manufacturer_category')"
       >
         <feather-icon icon="PlusIcon" class="mr-50" />
         <span class="align-middle">Create</span>
@@ -61,10 +61,10 @@
       <b-table
         responsive="sm"
         :fields="fields"
-        :items="users"
+        :items="manufacturerCategories"
         details-td-class="m-0 p-0"
         small
-        v-if="hasPermission('read_user')"
+        v-if="hasPermission('read_manufacturer_category')"
         :per-page="0"
       >
         <template #cell(created_by_data)="row">
@@ -91,8 +91,8 @@
             pill
             size="sm"
             class="mr-50"
-            @click="editUser(row.item)"
-            v-if="hasPermission('update_user')"
+            @click="editManufacturerCategory(row.item)"
+            v-if="hasPermission('update_manufacturer_category')"
           >
             Edit
           </b-button>
@@ -101,8 +101,8 @@
             pill
             size="sm"
             class="mr-50"
-            @click="removeUser(row.item)"
-            v-if="hasPermission('delete_user')"
+            @click="removeManufacturerCategory(row.item)"
+            v-if="hasPermission('delete_manufacturer_category')"
           >
             Delete
           </b-button>
@@ -115,14 +115,14 @@
         :per-page="perPage"
       ></b-pagination>
     </b-card>
-    <CreateUserModal
+    <CreateManufacturerCategoryModal
       @modalClosed="onModalClosed"
-      :key="`create-${createUserModalCount}`"
+      :key="`create-${createManufacturerCategoryModalCount}`"
     />
-    <EditUserModal
-      :user="user"
+    <EditManufacturerCategoryModal
+      :manufacturerCategory="manufacturerCategory"
       @modalClosed="onModalClosed"
-      :key="`edit-${editUserModalCount}`"
+      :key="`edit-${editManufacturerCategoryModalCount}`"
     />
   </div>
 </template>
@@ -130,33 +130,30 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import VueSelectPaginated from "@/components/ui/VueSelectPaginated.vue";
-import CreateUserModal from "@/components/user/CreateUserModal.vue";
-import EditUserModal from "@/components/user/EditUserModal.vue";
+import CreateManufacturerCategoryModal from "@/components/manufacturer-category/CreateManufacturerCategoryModal.vue";
+import EditManufacturerCategoryModal from "@/components/manufacturer-category/EditManufacturerCategoryModal.vue";
+
 import util from "@/util.js";
 
 export default {
   components: {
-    CreateUserModal,
-    EditUserModal,
+    CreateManufacturerCategoryModal,
+    EditManufacturerCategoryModal,
     VueSelectPaginated,
   },
   data() {
     return {
       fields: [
-        { key: "full_name", label: "Full Name" },
-        { key: "username", label: "Username" },
-        { key: "mobile", label: "Mobile" },
-        { key: "email", label: "Email" },
-        { key: "role_data", label: "Role" },
+        { key: "name", label: "Name" },
         { key: "manage", label: "Manage" },
       ],
       currentPage: 1,
       perPage: 0,
       totalItems: 0,
-      users: [],
-      user: null,
-      editUserModalCount: 0,
-      createUserModalCount: 0,
+      manufacturerCategories: [],
+      manufacturerCategory: null,
+      editManufacturerCategoryModalCount: 0,
+      createManufacturerCategoryModalCount: 0,
       searchTypes: [
         { value: 1, name: "Name" },
         { value: 2, name: "Username" },
@@ -175,8 +172,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      getUsers: "appData/getUsers",
-      deleteUser: "appData/deleteUser",
+      getManufacturerCategories: "appData/getManufacturerCategories",
+      deleteManufacturerCategory: "appData/deleteManufacturerCategory",
     }),
     async search() {
       if (this.searchType) {
@@ -197,33 +194,33 @@ export default {
     },
     async fetchPaginatedData() {
       try {
-        const res = await this.getUsers({
+        const res = await this.getManufacturerCategories({
           pageNumber: this.currentPage,
           name: this.name,
           username: this.username,
         });
-        this.users = res.data.results;
+        this.manufacturerCategories = res.data.results;
         this.totalItems = res.data.count;
         this.perPage = res.data.per_page;
       } catch (error) {
         this.displayError(error);
       }
     },
-    createUser() {
-      this.createUserModalCount += 1;
+    createManufacturerCategory() {
+      this.createManufacturerCategoryModalCount += 1;
       this.$nextTick(() => {
-        this.$bvModal.show("create-user-modal");
+        this.$bvModal.show("create-manufacturer-category-modal");
       });
     },
-    editUser(user) {
-      this.user = user;
-      this.editUserModalCount += 1;
+    editManufacturerCategory(manufacturerCategory) {
+      this.manufacturerCategory = manufacturerCategory;
+      this.editManufacturerCategoryModalCount += 1;
       this.$nextTick(() => {
-        this.$bvModal.show("edit-user-modal");
+        this.$bvModal.show("edit-manufacturer-category-modal");
       });
     },
-    async removeUser(user) {
-      this.user = user;
+    async removeManufacturerCategory(manufacturerCategory) {
+      this.manufacturerCategory = manufacturerCategory;
 
       this.$swal({
         title: "Are you sure?",
@@ -239,12 +236,12 @@ export default {
       }).then(async (result) => {
         if (result.value) {
           try {
-            const res = await this.deleteUser({
-              pk: this.user.id,
+            const res = await this.deleteManufacturerCategory({
+              pk: this.manufacturerCategory.id,
             });
-            if (res.status === 204) {
+            if (res.status === 200) {
               this.$swal({
-                title: "User deleted successfully",
+                title: "Manufacturer Category deleted successfully",
                 icon: "success",
               });
               if (

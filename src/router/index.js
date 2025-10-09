@@ -99,6 +99,39 @@ const router = new VueRouter({
       },
     },
     {
+      path: "/manufacturer-category",
+      name: "ManufacturerCategory",
+      component: () =>
+        import("@/views/manufacturer-category/ManufacturerCategory.vue"),
+      meta: {
+        pageTitle: "Manufacturer Category",
+        breadcrumb: [
+          {
+            text: "Manufacturer Category",
+            active: true,
+          },
+        ],
+        requiresAuth: true,
+        permission: "show_manufacturer_category",
+      },
+    },
+    {
+      path: "/manufacturer",
+      name: "Manufacturer",
+      component: () => import("@/views/manufacturer/Manufacturer.vue"),
+      meta: {
+        pageTitle: "Manufacturer",
+        breadcrumb: [
+          {
+            text: "Manufacturer",
+            active: true,
+          },
+        ],
+        requiresAuth: true,
+        permission: "show_manufacturer",
+      },
+    },
+    {
       path: "*",
       redirect: "/login",
     },

@@ -54,26 +54,6 @@
         </b-form-row>
         <b-form-row>
           <b-col md="6">
-            <b-form-group label-for="cnic">
-              <template #label>
-                CNIC <span class="text-danger">*</span>
-              </template>
-              <validation-provider
-                #default="{ errors }"
-                name="CNIC"
-                rules="required|integer|length:13"
-              >
-                <b-form-input
-                  id="cnic"
-                  v-model="cnic"
-                  :state="errors.length > 0 ? false : null"
-                  placeholder="CNIC"
-                />
-                <small class="text-danger">{{ errors[0] }}</small>
-              </validation-provider>
-            </b-form-group>
-          </b-col>
-          <b-col md="6">
             <b-form-group label-for="mobile">
               <template #label>
                 Mobile <span class="text-danger">*</span>
@@ -93,8 +73,6 @@
               </validation-provider>
             </b-form-group>
           </b-col>
-        </b-form-row>
-        <b-form-row>
           <b-col md="6">
             <b-form-group label-for="email">
               <template #label>
@@ -115,6 +93,8 @@
               </validation-provider>
             </b-form-group>
           </b-col>
+        </b-form-row>
+        <b-form-row>
           <b-col md="6">
             <VueSelectPaginated
               placeholder="Role"
@@ -127,6 +107,22 @@
               @setMethod="
                 (value) => {
                   role = value;
+                }
+              "
+            />
+          </b-col>
+          <b-col md="6">
+            <VueSelectPaginated
+              placeholder="Company"
+              name="Company"
+              label="name"
+              rules="required"
+              searchBy="name"
+              :prevSelected="company"
+              :getListMethod="getCompanys"
+              @setMethod="
+                (value) => {
+                  company = value;
                 }
               "
             />
@@ -170,22 +166,25 @@ export default {
       mobile: "",
       email: "",
       role: null,
+      company: null,
     };
   },
   async mounted() {
     if (this.user) {
+      console.log(this.user);
       this.firstName = this.user.first_name;
       this.lastName = this.user.last_name;
-      this.cnic = this.user.cnic;
       this.mobile = this.user.mobile;
       this.email = this.user.email;
       this.role = this.user.role_data;
+      this.company = this.user.company_data;
     }
   },
   methods: {
     ...mapActions({
       updateUser: "appData/updateUser",
       getRoles: "appData/getRoles",
+      getCompanys: "appData/getCompanys",
     }),
     async validationForm() {
       const success = await this.$refs.editUserFormValidation.validate();
@@ -199,10 +198,10 @@ export default {
           payload: {
             first_name: this.firstName,
             last_name: this.lastName,
-            cnic: this.cnic,
             mobile: this.mobile,
             email: this.email,
             role: this.role.id,
+            company: this.company.id,
             updated_by: this.getLoggedInUser.id,
           },
           pk: this.user.id,

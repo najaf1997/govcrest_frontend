@@ -111,26 +111,6 @@
         </b-form-row>
         <b-form-row>
           <b-col md="6">
-            <b-form-group label-for="cnic">
-              <template #label>
-                CNIC <span class="text-danger">*</span>
-              </template>
-              <validation-provider
-                #default="{ errors }"
-                name="CNIC"
-                rules="required|integer|length:13"
-              >
-                <b-form-input
-                  id="cnic"
-                  v-model="cnic"
-                  :state="errors.length > 0 ? false : null"
-                  placeholder="CNIC"
-                />
-                <small class="text-danger">{{ errors[0] }}</small>
-              </validation-provider>
-            </b-form-group>
-          </b-col>
-          <b-col md="6">
             <b-form-group label-for="mobile">
               <template #label>
                 Mobile <span class="text-danger">*</span>
@@ -150,8 +130,6 @@
               </validation-provider>
             </b-form-group>
           </b-col>
-        </b-form-row>
-        <b-form-row>
           <b-col md="6">
             <b-form-group label-for="email">
               <template #label>
@@ -172,6 +150,8 @@
               </validation-provider>
             </b-form-group>
           </b-col>
+        </b-form-row>
+        <b-form-row>
           <b-col md="6">
             <VueSelectPaginated
               placeholder="Role"
@@ -183,6 +163,21 @@
               @setMethod="
                 (value) => {
                   role = value;
+                }
+              "
+            />
+          </b-col>
+          <b-col md="6">
+            <VueSelectPaginated
+              placeholder="Company"
+              name="Company"
+              label="name"
+              rules="required"
+              searchBy="name"
+              :getListMethod="getCompanys"
+              @setMethod="
+                (value) => {
+                  company = value;
                 }
               "
             />
@@ -222,16 +217,17 @@ export default {
       password: "",
       firstName: "",
       lastName: "",
-      cnic: "",
       mobile: "",
       email: "",
       role: null,
+      company: null,
     };
   },
   methods: {
     ...mapActions({
       createUser: "appData/createUser",
       getRoles: "appData/getRoles",
+      getCompanys: "appData/getCompanys",
     }),
     async validationForm() {
       const success = await this.$refs.createUserFormValidation.validate();
@@ -246,10 +242,10 @@ export default {
           password: this.password,
           first_name: this.firstName,
           last_name: this.lastName,
-          cnic: this.cnic,
           mobile: this.mobile,
           email: this.email,
           role: this.role.id,
+          company: this.company.id,
           created_by: this.getLoggedInUser.id,
           updated_by: this.getLoggedInUser.id,
         });

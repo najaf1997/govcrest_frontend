@@ -85,6 +85,24 @@ export default {
           route: "ContractStatus",
         });
       }
+      if (state.user.permissions.hasOwnProperty("show_manufacturer_category")) {
+        if (!lookupTablesMenuItem.children.length) {
+          state.navMenuItems.push(lookupTablesMenuItem);
+        }
+        lookupTablesMenuItem.children.push({
+          title: "Manufacturer Category",
+          route: "ManufacturerCategory",
+        });
+      }
+      if (state.user.permissions.hasOwnProperty("show_manufacturer")) {
+        if (!lookupTablesMenuItem.children.length) {
+          state.navMenuItems.push(lookupTablesMenuItem);
+        }
+        lookupTablesMenuItem.children.push({
+          title: "Manufacturer",
+          route: "Manufacturer",
+        });
+      }
     },
   },
   actions: {
@@ -244,6 +262,63 @@ export default {
     },
     async deleteContract({ commit }, { pk }) {
       const res = await axiosIns.delete(`contract/${pk}/`);
+      return res;
+    },
+    async getManufacturerCategories(
+      { commit },
+      { pageNumber, name, username }
+    ) {
+      let url = `manufacturer-category/?page=${pageNumber}`;
+      if (name) {
+        url += `&name=${name}`;
+      }
+      if (username) {
+        url += `&username=${username}`;
+      }
+      const res = await axiosIns.get(url);
+      return res;
+    },
+    async getManufacturerCategory({ commit }, { pk }) {
+      const res = await axiosIns.get(`manufacturer-category/${pk}/`);
+      return res;
+    },
+    async createManufacturerCategory({ commit }, payload) {
+      const res = await axiosIns.post("manufacturer-category/", payload);
+      return res;
+    },
+    async updateManufacturerCategory({ commit }, { payload, pk }) {
+      const res = await axiosIns.patch(`manufacturer-category/${pk}/`, payload);
+      return res;
+    },
+    async deleteManufacturerCategory({ commit }, { pk }) {
+      const res = await axiosIns.delete(`manufacturer-category/${pk}/`);
+      return res;
+    },
+    async getManufacturers({ commit }, { pageNumber, name, username }) {
+      let url = `manufacturer/?page=${pageNumber}`;
+      if (name) {
+        url += `&name=${name}`;
+      }
+      if (username) {
+        url += `&username=${username}`;
+      }
+      const res = await axiosIns.get(url);
+      return res;
+    },
+    async getManufacturer({ commit }, { pk }) {
+      const res = await axiosIns.get(`manufacturer/${pk}/`);
+      return res;
+    },
+    async createManufacturer({ commit }, payload) {
+      const res = await axiosIns.post("manufacturer/", payload);
+      return res;
+    },
+    async updateManufacturer({ commit }, { payload, pk }) {
+      const res = await axiosIns.patch(`manufacturer/${pk}/`, payload);
+      return res;
+    },
+    async deleteManufacturer({ commit }, { pk }) {
+      const res = await axiosIns.delete(`manufacturer/${pk}/`);
       return res;
     },
   },

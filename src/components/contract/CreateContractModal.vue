@@ -144,6 +144,22 @@
             />
           </b-col>
         </b-form-row>
+        <b-form-row>
+          <b-col md="6">
+            <VueSelectPaginated
+              placeholder="Company"
+              name="Company"
+              label="name"
+              searchBy="name"
+              :getListMethod="getCompanys"
+              @setMethod="
+                (value) => {
+                  company = value;
+                }
+              "
+            />
+          </b-col>
+        </b-form-row>
       </b-form>
     </validation-observer>
     <template #modal-footer>
@@ -180,6 +196,7 @@ export default {
       inactiveDate: "",
       contractStatus: null,
       poc: null,
+      company: null,
       required,
     };
   },
@@ -188,6 +205,7 @@ export default {
       createContract: "appData/createContract",
       getContractStatuses: "appData/getContractStatuses",
       getUsers: "appData/getUsers",
+      getCompanys: "appData/getCompanys",
     }),
     async validationForm() {
       const success = await this.$refs.createContractFormValidation.validate();
@@ -204,6 +222,9 @@ export default {
           expiry_date: this.expiryDate || null,
           contract_link: this.contractLink,
           inactive_date: this.inactiveDate || null,
+          company: this.company.id,
+          contract_status: this.contractLink.id,
+          poc: this.poc.id,
           created_by: this.getLoggedInUser.id,
           updated_by: this.getLoggedInUser.id,
         };

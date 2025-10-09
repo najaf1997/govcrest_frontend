@@ -138,27 +138,46 @@ export default {
     },
     async removeRole(role) {
       this.role = role;
-      try {
-        const res = await this.deleteRole({
-          pk: this.role.id,
-        });
-        if (res.status === 204) {
-          this.$swal({
-            title: "Role deleted successfully",
-            icon: "success",
-          });
-          if (
-            (this.totalItems - 1) % this.perPage === 0 &&
-            this.currentPage !== 1
-          ) {
-            this.currentPage -= 1;
-          } else {
-            await this.fetchPaginatedData();
+
+      this.$swal({
+        title: "Are you sure?",
+        icon: "warning",
+        showCloseButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Confirm",
+        customClass: {
+          confirmButton: "btn btn-primary",
+          cancelButton: "btn btn-danger ml-1",
+        },
+        buttonsStyling: false,
+      }).then(async (result) => {
+        if (result.value) {
+          try {
+            const res = await this.deleteRole({
+              pk: this.role.id,
+            });
+            if (res.status === 204) {
+              this.$swal({
+                title: "Role deleted successfully",
+                icon: "success",
+              });
+              if (
+                (this.totalItems - 1) % this.perPage === 0 &&
+                this.currentPage !== 1
+              ) {
+                this.currentPage -= 1;
+              } else {
+                await this.fetchPaginatedData();
+              }
+            }
+          } catch (error) {
+            this.show = false;
+            this.displayError(error);
           }
+        } else {
+          this.show = false;
         }
-      } catch (error) {
-        this.displayError(error);
-      }
+      });
     },
     async onModalClosed() {
       await this.fetchPaginatedData();

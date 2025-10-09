@@ -77,23 +77,23 @@
             row.item.updated_by_data ? row.item.updated_by_data.username : ""
           }}
         </template>
-        <template #cell(company_data)="row">
-          {{ row.item.company_data ? row.item.company_data.name : "" }}
+        <template #cell(company)="row">
+          {{ row.item.company ? row.item.company.name : "" }}
         </template>
-        <template #cell(contract_status_data)="row">
+        <template #cell(contract_status)="row">
           <span
-            v-if="row.item.contract_status_data"
+            v-if="row.item.contract_status"
             class="badge badge-pill"
             :style="{
-              backgroundColor: row.item.contract_status_data.color,
-              color: getContrastColor(row.item.contract_status_data.color),
+              backgroundColor: row.item.contract_status.color,
+              color: getContrastColor(row.item.contract_status.color),
             }"
           >
-            {{ row.item.contract_status_data.name }}
+            {{ row.item.contract_status.name }}
           </span>
         </template>
-        <template #cell(poc_data)="row">
-          {{ row.item.poc_data ? row.item.poc_data.username : "" }}
+        <template #cell(poc)="row">
+          {{ row.item.poc ? row.item.poc.full_name : "" }}
         </template>
         <template #cell(issue_date)="row">
           {{ formatDate(row.item.issue_date) }}
@@ -175,9 +175,9 @@ export default {
       fields: [
         { key: "notice_id", label: "Notice ID" },
         { key: "title", label: "Title" },
-        { key: "company_data", label: "Company" },
-        { key: "contract_status_data", label: "Status" },
-        { key: "poc_data", label: "POC" },
+        { key: "company", label: "Company" },
+        { key: "contract_status", label: "Status" },
+        { key: "poc", label: "POC" },
         { key: "issue_date", label: "Issue Date" },
         { key: "expiry_date", label: "Expiry Date" },
         { key: "contract_link", label: "Contract Link" },
