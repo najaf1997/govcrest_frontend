@@ -61,6 +61,13 @@ export default {
           route: "Contract",
         });
       }
+      if (state.user.permissions.hasOwnProperty("show_contract")) {
+        state.navMenuItems.push({
+          title: "Dashboard",
+          icon: "UserPlusIcon",
+          route: "Dashboard",
+        });
+      }
       const lookupTablesMenuItem = {
         title: "Lookup Tables",
         icon: "ToolIcon",
@@ -101,6 +108,20 @@ export default {
         lookupTablesMenuItem.children.push({
           title: "Manufacturer",
           route: "Manufacturer",
+        });
+      }
+      const reportMenuItem = {
+        title: "Report",
+        icon: "MonitorIcon",
+        children: [],
+      };
+      if (state.user.permissions.hasOwnProperty("show_contract")) {
+        state.navMenuItems.push(reportMenuItem);
+      }
+      if (state.user.permissions.hasOwnProperty("show_contract")) {
+        reportMenuItem.children.push({
+          title: "Employee Submission Report",
+          route: "EmployeeSubmissionReport",
         });
       }
     },
@@ -319,6 +340,23 @@ export default {
     },
     async deleteManufacturer({ commit }, { pk }) {
       const res = await axiosIns.delete(`manufacturer/${pk}/`);
+      return res;
+    },
+    // Dashboard API calls
+    async getDashboardCardsData({ commit }) {
+      const res = await axiosIns.get("dashboardcards/");
+      return res;
+    },
+    async getYearlyContractsData({ commit }) {
+      const res = await axiosIns.get("dashboardyearlygraph/");
+      return res;
+    },
+    async getTopExpiringContracts({ commit }) {
+      const res = await axiosIns.get("top-expiring-contracts/");
+      return res;
+    },
+    async getEmployeeReport({ commit }, payload) {
+      const res = await axiosIns.post("employee-report/", payload);
       return res;
     },
   },

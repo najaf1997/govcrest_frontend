@@ -59,7 +59,7 @@
         </b-col>
       </b-row>
       <b-table
-        responsive="sm"
+        responsive
         :fields="fields"
         :items="contracts"
         details-td-class="m-0 p-0"
@@ -103,6 +103,29 @@
         </template>
         <template #cell(inactive_date)="row">
           {{ formatDate(row.item.inactive_date) }}
+        </template>
+        <template #cell(expiry_timezone)="row">
+          {{
+            row.item.expiry_timezone_display || row.item.expiry_timezone || "-"
+          }}
+        </template>
+        <template #cell(submitted_at)="row">
+          {{ formatDate(row.item.submitted_at) }}
+        </template>
+        <template #cell(awarded_at)="row">
+          {{ formatDate(row.item.awarded_at) }}
+        </template>
+        <template #cell(manufacturer_name)="row">
+          {{ row.item.manufacturer_name || "-" }}
+        </template>
+        <template #cell(manufacturer_email)="row">
+          {{ row.item.manufacturer_email || "-" }}
+        </template>
+        <template #cell(notes)="row">
+          <span v-if="row.item.notes" :title="row.item.notes">
+            {{ truncateText(row.item.notes, 50) }}
+          </span>
+          <span v-else>-</span>
         </template>
         <template #cell(contract_link)="row">
           <a
@@ -178,8 +201,15 @@ export default {
         { key: "company", label: "Company" },
         { key: "contract_status", label: "Status" },
         { key: "poc", label: "POC" },
+        { key: "manufacturer_name", label: "Manufacturer" },
+        { key: "manufacturer_email", label: "Manufacturer Email" },
         { key: "issue_date", label: "Issue Date" },
         { key: "expiry_date", label: "Expiry Date" },
+        { key: "expiry_timezone", label: "Timezone" },
+        { key: "inactive_date", label: "Inactive Date" },
+        { key: "submitted_at", label: "Submitted At" },
+        { key: "awarded_at", label: "Awarded At" },
+        { key: "notes", label: "Notes" },
         { key: "contract_link", label: "Contract Link" },
         { key: "manage", label: "Manage" },
       ],
@@ -228,6 +258,11 @@ export default {
       if (!dateString) return "";
       const date = new Date(dateString);
       return date.toLocaleDateString();
+    },
+    truncateText(text, maxLength) {
+      if (!text) return "";
+      if (text.length <= maxLength) return text;
+      return text.substring(0, maxLength) + "...";
     },
     async search() {
       if (this.searchType) {

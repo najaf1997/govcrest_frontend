@@ -162,4 +162,122 @@ export default {
 
 <style lang="scss">
 @import "~@core/scss/base/core/menu/menu-types/vertical-menu.scss";
+
+// Custom dark background for vertical menu (#121212)
+.main-menu {
+  background-color: #121212 !important;
+  background-image: linear-gradient(
+    135deg,
+    #121212 0%,
+    #1a1a1a 100%
+  ) !important;
+}
+
+// Update navbar header background - slightly lighter for contrast
+.main-menu .navbar-header {
+  background-color: #1a1a1a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+// Main menu content area (where the tabs are)
+.main-menu .main-menu-content {
+  background-color: #121212 !important;
+  background-image: linear-gradient(
+    135deg,
+    #121212 0%,
+    #1a1a1a 100%
+  ) !important;
+}
+
+// Navigation area background
+.main-menu .navigation,
+.main-menu .navigation-main {
+  background-color: transparent !important;
+}
+
+// Update text colors for better contrast on dark background
+.main-menu .navigation li a {
+  color: #e0e0e0 !important;
+}
+
+// Active menu item styling - modern purple/blue accent
+.main-menu .navigation .nav-item.active > a {
+  background: linear-gradient(118deg, #0c223a, #224f80) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px 1px #0c223a80 !important;
+  border-radius: 8px;
+}
+
+// Hover effect - subtle purple highlight
+.main-menu .navigation li a:hover {
+  background-color: #0c223a50 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+}
+
+// Brand text color
+.main-menu .brand-text {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+// Menu group headers
+.main-menu .navigation-header {
+  color: rgba(255, 255, 255, 0.5) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+// Icons color - purple tint
+.main-menu .navigation li a svg {
+  color: white !important;
+}
+
+// Active item icon
+.main-menu .navigation .nav-item.active > a svg {
+  color: #ffffff !important;
+}
+
+// Sub-menu items - darker overlay
+.main-menu .navigation .menu-content {
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  border-radius: 8px;
+  margin: 0 10px;
+  padding: 5px 0;
+}
+
+.main-menu .navigation .menu-content li a {
+  color: rgba(224, 224, 224, 0.9) !important;
+  padding-left: 50px !important;
+}
+
+// Sub-menu hover
+.main-menu .navigation .menu-content li a:hover {
+  background-color: #0c223a33 !important;
+  color: #ffffff !important;
+}
+
+// Open/expanded menu items
+.main-menu .navigation .nav-item.open > a,
+.main-menu .navigation .nav-item.sidebar-group-active > a {
+  background-color: rgba(115, 103, 240, 0.1) !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+}
+
+// Shadow bottom (scroll indicator)
+.main-menu .shadow-bottom {
+  background: linear-gradient(
+    #121212 41%,
+    rgba(18, 18, 18, 0.11) 95%,
+    rgba(18, 18, 18, 0)
+  ) !important;
+}
+
+// Logo/icon styling
+.main-menu .navbar-brand .brand-logo img {
+  filter: brightness(1.2);
+}
 </style>

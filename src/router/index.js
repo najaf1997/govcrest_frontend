@@ -99,6 +99,39 @@ const router = new VueRouter({
       },
     },
     {
+      path: "/dashboard",
+      name: "Dashboard",
+      component: () => import("@/views/dashboard/Dashboard.vue"),
+      meta: {
+        pageTitle: "Dashboard",
+        layout: "full",
+        breadcrumb: [
+          {
+            text: "Dashboard",
+            active: true,
+          },
+        ],
+        requiresAuth: true,
+        permission: "show_contract",
+      },
+    },
+    {
+      path: "/EmployeeSubmissionReport",
+      name: "EmployeeSubmissionReport",
+      component: () => import("@/views/report/EmployeeSubmissionReport.vue"),
+      meta: {
+        pageTitle: "Employee Submission Report",
+        breadcrumb: [
+          {
+            text: "Employee Submission Report",
+            active: true,
+          },
+        ],
+        requiresAuth: true,
+        permission: "show_contract",
+      },
+    },
+    {
       path: "/manufacturer-category",
       name: "ManufacturerCategory",
       component: () =>

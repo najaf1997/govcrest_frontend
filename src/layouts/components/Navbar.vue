@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="navbar-container d-flex content align-items-center rounded"
-    style="background-color: #13355a"
-  >
+  <div class="navbar-container d-flex content align-items-center rounded">
     <ul class="nav navbar-nav d-xl-none">
       <li class="nav-item">
         <b-link class="nav-link" @click="toggleVerticalMenuActive">
@@ -19,13 +16,13 @@
       >
         <template #button-content>
           <div class="d-sm-flex d-none user-nav">
-            <p class="user-name font-weight-bolder mb-0 text-light">
+            <p class="user-name font-weight-bolder mb-0">
               {{ getLoggedInUser ? getLoggedInUser.username : "" }}
             </p>
           </div>
           <b-avatar
             size="40"
-            variant="light"
+            variant="dark"
             badge
             :src="getLoggedInUser ? getLoggedInUser.profile_image : ''"
             class="badge-minimal"

@@ -62,7 +62,7 @@
                 <b-form-input
                   id="issueDate"
                   v-model="issueDate"
-                  type="date"
+                  type="datetime-local"
                   :state="errors.length > 0 ? false : null"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
@@ -76,9 +76,36 @@
                 <b-form-input
                   id="expiryDate"
                   v-model="expiryDate"
-                  type="date"
+                  type="datetime-local"
                   :state="errors.length > 0 ? false : null"
                 />
+                <small class="text-danger">{{ errors[0] }}</small>
+              </validation-provider>
+            </b-form-group>
+          </b-col>
+        </b-form-row>
+        <b-form-row v-if="expiryDate">
+          <b-col md="6">
+            <b-form-group label-for="expiryTimezone">
+              <template #label>
+                Expiry Timezone <span class="text-danger">*</span>
+              </template>
+              <validation-provider
+                #default="{ errors }"
+                name="Expiry Timezone"
+                :rules="{ required }"
+              >
+                <v-select
+                  id="expiryTimezone"
+                  v-model="expiryTimezone"
+                  :options="timezoneOptions"
+                  label="label"
+                  :reduce="(option) => option.value"
+                  placeholder="Select Timezone"
+                  :state="errors.length > 0 ? false : null"
+                >
+                  <template #no-options>No timezones found.</template>
+                </v-select>
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
             </b-form-group>
@@ -106,8 +133,45 @@
                 <b-form-input
                   id="inactiveDate"
                   v-model="inactiveDate"
-                  type="date"
+                  type="datetime-local"
                   :state="errors.length > 0 ? false : null"
+                />
+                <small class="text-danger">{{ errors[0] }}</small>
+              </validation-provider>
+            </b-form-group>
+          </b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col md="6">
+            <b-form-group label-for="manufacturerName">
+              <template #label> Manufacturer Name </template>
+              <validation-provider
+                #default="{ errors }"
+                name="Manufacturer Name"
+              >
+                <b-form-input
+                  id="manufacturerName"
+                  v-model="manufacturerName"
+                  :state="errors.length > 0 ? false : null"
+                  placeholder="Manufacturer Name"
+                />
+                <small class="text-danger">{{ errors[0] }}</small>
+              </validation-provider>
+            </b-form-group>
+          </b-col>
+          <b-col md="6">
+            <b-form-group label-for="manufacturerEmail">
+              <template #label> Manufacturer Email </template>
+              <validation-provider
+                #default="{ errors }"
+                name="Manufacturer Email"
+              >
+                <b-form-input
+                  id="manufacturerEmail"
+                  v-model="manufacturerEmail"
+                  type="email"
+                  :state="errors.length > 0 ? false : null"
+                  placeholder="Manufacturer Email"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -122,7 +186,7 @@
               label="name"
               searchBy="name"
               :getListMethod="getContractStatuses"
-              :selectedValue="contractStatus"
+              :prevSelected="contractStatus"
               @setMethod="
                 (value) => {
                   contractStatus = value;
@@ -130,20 +194,54 @@
               "
             />
           </b-col>
-          <b-col md="6">
+          <b-col md="6" v-if="!hasRole('emp')">
             <VueSelectPaginated
               placeholder="Point of Contact"
               name="POC"
-              label="username"
-              searchBy="username"
+              label="full_name"
+              searchBy="full_name"
+              :prevSelected="poc"
               :getListMethod="getUsers"
-              :selectedValue="poc"
               @setMethod="
                 (value) => {
                   poc = value;
                 }
               "
             />
+          </b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col md="6">
+            <VueSelectPaginated
+              placeholder="Company"
+              name="Company"
+              label="name"
+              searchBy="name"
+              :getListMethod="getCompanys"
+              :prevSelected="company"
+              @setMethod="
+                (value) => {
+                  company = value;
+                }
+              "
+            />
+          </b-col>
+        </b-form-row>
+        <b-form-row>
+          <b-col md="12">
+            <b-form-group label-for="notes">
+              <template #label> Notes </template>
+              <validation-provider #default="{ errors }" name="Notes">
+                <b-form-textarea
+                  id="notes"
+                  v-model="notes"
+                  :state="errors.length > 0 ? false : null"
+                  placeholder="Add any notes here..."
+                  rows="3"
+                />
+                <small class="text-danger">{{ errors[0] }}</small>
+              </validation-provider>
+            </b-form-group>
           </b-col>
         </b-form-row>
       </b-form>
@@ -164,12 +262,15 @@ import { ValidationProvider, ValidationObserver } from "vee-validate";
 import VueSelectPaginated from "@/components/ui/VueSelectPaginated.vue";
 import { required } from "@validations";
 import util from "@/util.js";
+import { TIMEZONE_CHOICES } from "@/utils/timezones.js";
+import vSelect from "vue-select";
 
 export default {
   components: {
     ValidationProvider,
     ValidationObserver,
     VueSelectPaginated,
+    vSelect,
   },
   props: {
     contract: Object,
@@ -181,15 +282,22 @@ export default {
       title: "",
       issueDate: "",
       expiryDate: "",
+      expiryTimezone: "America/New_York",
       contractLink: "",
       inactiveDate: "",
+      manufacturerName: "",
+      manufacturerEmail: "",
+      notes: "",
       contractStatus: null,
       poc: null,
+      company: null,
       required,
+      timezoneOptions: TIMEZONE_CHOICES,
     };
   },
   async mounted() {
     if (this.contract) {
+      console.log(this.contract);
       this.populateFields();
     }
   },
@@ -198,26 +306,47 @@ export default {
       updateContract: "appData/updateContract",
       getContractStatuses: "appData/getContractStatuses",
       getUsers: "appData/getUsers",
+      getCompanys: "appData/getCompanys",
     }),
     populateFields() {
       this.noticeId = this.contract.notice_id || "";
       this.title = this.contract.title || "";
-      this.issueDate = this.formatDateForInput(this.contract.issue_date);
-      this.expiryDate = this.formatDateForInput(this.contract.expiry_date);
+      this.issueDate = this.formatDateTimeForInput(this.contract.issue_date);
+      this.expiryDate = this.formatDateTimeForInput(
+        this.contract.expiry_date_in_original_timezone ||
+          this.contract.expiry_date
+      );
+      this.expiryTimezone =
+        this.contract.expiry_timezone_display ||
+        this.contract.expiry_timezone ||
+        "America/New_York";
       this.contractLink = this.contract.contract_link || "";
-      this.inactiveDate = this.formatDateForInput(this.contract.inactive_date);
+      this.inactiveDate = this.formatDateTimeForInput(
+        this.contract.inactive_date
+      );
+      this.manufacturerName = this.contract.manufacturer_name || "";
+      this.manufacturerEmail = this.contract.manufacturer_email || "";
+      this.notes = this.contract.notes || "";
 
-      if (this.contract.contract_status_data) {
-        this.contractStatus = this.contract.contract_status_data;
+      if (this.contract.contract_status) {
+        this.contractStatus = this.contract.contract_status;
       }
-      if (this.contract.poc_data) {
-        this.poc = this.contract.poc_data;
+      if (this.contract.poc) {
+        this.poc = this.contract.poc;
+      }
+      if (this.contract.company) {
+        this.company = this.contract.company;
       }
     },
-    formatDateForInput(dateString) {
+    formatDateTimeForInput(dateString) {
       if (!dateString) return "";
       const date = new Date(dateString);
-      return date.toISOString().split("T")[0];
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
     },
     async validationForm() {
       const success = await this.$refs.editContractFormValidation.validate();
@@ -231,11 +360,20 @@ export default {
           notice_id: this.noticeId,
           title: this.title,
           issue_date: this.issueDate || null,
-          expiry_date: this.expiryDate || null,
           contract_link: this.contractLink,
           inactive_date: this.inactiveDate || null,
+          manufacturer_name: this.manufacturerName || null,
+          manufacturer_email: this.manufacturerEmail || null,
+          notes: this.notes || null,
           updated_by: this.getLoggedInUser.id,
         };
+
+        // Handle expiry date with timezone
+        if (this.expiryDate) {
+          // Format: "YYYY-MM-DD HH:MM:SS|TIMEZONE"
+          const formattedDate = this.expiryDate.replace("T", " ") + ":00";
+          payload.expiry_date_with_timezone = `${formattedDate}|${this.expiryTimezone}`;
+        }
 
         if (this.contractStatus) {
           payload.contract_status = this.contractStatus.id;
@@ -243,12 +381,15 @@ export default {
         if (this.poc) {
           payload.poc = this.poc.id;
         }
+        if (this.company) {
+          payload.company = this.company.id;
+        }
 
         const res = await this.updateContract({
           payload,
           pk: this.contract.id,
         });
-        if (res.status === 200) {
+        if (res.status === 200 || res.status === 201) {
           this.$swal({
             title: "Contract updated successfully",
             icon: "success",
@@ -264,7 +405,10 @@ export default {
     },
   },
   computed: {
-    ...mapGetters({ getLoggedInUser: "appData/getLoggedInUser" }),
+    ...mapGetters({
+      hasRole: "appData/hasRole",
+      getLoggedInUser: "appData/getLoggedInUser",
+    }),
   },
 };
 </script>
