@@ -5,49 +5,10 @@
     >
       <b-link
         class="text-white my-nav-item my-nav-link d-flex align-items-center"
-        :to="{ name: 'Hr' }"
+        :to="{ name: 'Contract' }"
       >
         <feather-icon icon="HomeIcon" size="22" class="mr-1 text-white" />
         <span style="font-size: 16px; font-weight: 600">Home</span>
-      </b-link>
-
-      <b-link
-        class="text-white my-nav-item my-nav-link d-flex align-items-center ml-3"
-        :to="{ name: 'Role' }"
-      >
-        <feather-icon icon="UsersIcon" size="22" class="mr-1 text-white" />
-        <span style="font-size: 16px; font-weight: 600; font-family: Arial"
-          >Role</span
-        >
-      </b-link>
-
-      <b-link
-        class="text-white my-nav-item my-nav-link d-flex align-items-center ml-3"
-        :to="{ name: 'User' }"
-      >
-        <feather-icon icon="UserIcon" size="22" class="mr-1 text-white" />
-        <span style="font-size: 16px; font-weight: 600; font-family: Arial"
-          >User</span
-        >
-      </b-link>
-
-      <b-link
-        class="text-white my-nav-item my-nav-link d-flex align-items-center ml-3"
-        :to="{ name: 'Organization' }"
-      >
-        <feather-icon icon="ToolIcon" size="22" class="mr-1 text-white" />
-        <span style="font-size: 16px; font-weight: 600; font-family: Arial"
-          >LookUps</span
-        >
-      </b-link>
-      <b-link
-        class="text-white my-nav-item my-nav-link d-flex align-items-center ml-3"
-        :to="{ name: 'Project' }"
-      >
-        <feather-icon icon="ApertureIcon" size="22" class="mr-1 text-white" />
-        <span style="font-size: 16px; font-weight: 600; font-family: Arial"
-          >Project</span
-        >
       </b-link>
     </div>
   </div>

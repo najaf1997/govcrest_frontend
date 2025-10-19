@@ -113,10 +113,10 @@ export default {
       startDate: null,
       endDate: null,
       baseFields: [
-        { key: "full_name", label: "Full Name", sortable: true },
-        { key: "username", label: "Username", sortable: true },
-        { key: "email", label: "Email", sortable: true },
-        { key: "mobile", label: "Mobile", sortable: false },
+        { key: "full_name", label: "Full Name" },
+        { key: "username", label: "Username" },
+        { key: "email", label: "Email" },
+        { key: "mobile", label: "Mobile" },
       ],
       statusFields: [],
       data: [],
@@ -163,8 +163,6 @@ export default {
           this.statusFields = this.data[0].performance_data.map((perf) => ({
             key: `status_${perf.status.replace(/\s+/g, "_")}`,
             label: perf.status,
-            sortable: true,
-            class: "text-center",
           }));
         }
 
@@ -198,20 +196,28 @@ export default {
       return [
         ...this.baseFields,
         ...this.statusFields,
-        { key: "created_at", label: "Created At", sortable: true },
+        {
+          key: "total",
+          label: "Total",
+        },
       ];
     },
     transformedData() {
       return this.data.map((employee) => {
         const transformed = { ...employee };
+        let total = 0;
 
         // Add each status count as a separate property
         if (employee.performance_data) {
           employee.performance_data.forEach((perf) => {
             const key = `status_${perf.status.replace(/\s+/g, "_")}`;
             transformed[key] = perf.count;
+            total += perf.count;
           });
         }
+
+        // Add total column
+        transformed.total = total;
 
         return transformed;
       });

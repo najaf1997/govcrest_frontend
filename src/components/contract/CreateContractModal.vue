@@ -28,8 +28,15 @@
                   v-model="noticeId"
                   :state="errors.length > 0 ? false : null"
                   placeholder="Notice ID"
+                  @blur="checkContractAvailability"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
+                <small
+                  v-if="verificationMessage"
+                  :class="isContractAvailable ? 'text-success' : 'text-danger'"
+                >
+                  {{ verificationMessage }}
+                </small>
               </validation-provider>
             </b-form-group>
           </b-col>
@@ -48,6 +55,7 @@
                   v-model="title"
                   :state="errors.length > 0 ? false : null"
                   placeholder="Title"
+                  :disabled="isFormDisabled"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -64,6 +72,7 @@
                   v-model="issueDate"
                   type="datetime-local"
                   :state="errors.length > 0 ? false : null"
+                  :disabled="isFormDisabled"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -78,6 +87,7 @@
                   v-model="expiryDate"
                   type="datetime-local"
                   :state="errors.length > 0 ? false : null"
+                  :disabled="isFormDisabled"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -103,6 +113,7 @@
                   :reduce="(option) => option.value"
                   placeholder="Select Timezone"
                   :state="errors.length > 0 ? false : null"
+                  :disabled="isFormDisabled"
                 >
                   <template #no-options>No timezones found.</template>
                 </v-select>
@@ -121,6 +132,7 @@
                   v-model="contractLink"
                   :state="errors.length > 0 ? false : null"
                   placeholder="Contract Link"
+                  :disabled="isFormDisabled"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -135,6 +147,7 @@
                   v-model="inactiveDate"
                   type="datetime-local"
                   :state="errors.length > 0 ? false : null"
+                  :disabled="isFormDisabled"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -154,6 +167,7 @@
                   v-model="manufacturerName"
                   :state="errors.length > 0 ? false : null"
                   placeholder="Manufacturer Name"
+                  :disabled="isFormDisabled"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -172,6 +186,7 @@
                   type="email"
                   :state="errors.length > 0 ? false : null"
                   placeholder="Manufacturer Email"
+                  :disabled="isFormDisabled"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -183,9 +198,11 @@
             <VueSelectPaginated
               placeholder="Contract Status"
               name="Contract Status"
+              rules="required"
               label="name"
               searchBy="name"
               :getListMethod="getContractStatuses"
+              :disabled="isFormDisabled"
               @setMethod="
                 (value) => {
                   contractStatus = value;
@@ -200,6 +217,7 @@
               label="full_name"
               searchBy="full_name"
               :getListMethod="getUsers"
+              :disabled="isFormDisabled"
               @setMethod="
                 (value) => {
                   poc = value;
@@ -208,22 +226,7 @@
             />
           </b-col>
         </b-form-row>
-        <b-form-row>
-          <b-col md="6">
-            <VueSelectPaginated
-              placeholder="Company"
-              name="Company"
-              label="name"
-              searchBy="name"
-              :getListMethod="getCompanys"
-              @setMethod="
-                (value) => {
-                  company = value;
-                }
-              "
-            />
-          </b-col>
-        </b-form-row>
+
         <b-form-row>
           <b-col md="12">
             <b-form-group label-for="notes">
@@ -235,6 +238,7 @@
                   :state="errors.length > 0 ? false : null"
                   placeholder="Add any notes here..."
                   rows="3"
+                  :disabled="isFormDisabled"
                 />
                 <small class="text-danger">{{ errors[0] }}</small>
               </validation-provider>
@@ -245,7 +249,13 @@
     </validation-observer>
     <template #modal-footer>
       <b-form-group class="text-right">
-        <b-button type="submit" variant="primary" pill @click="validationForm">
+        <b-button
+          type="submit"
+          variant="primary"
+          pill
+          @click="validationForm"
+          :disabled="isFormDisabled"
+        >
           Submit
         </b-button>
       </b-form-group>
@@ -284,7 +294,10 @@ export default {
       notes: "",
       contractStatus: null,
       poc: null,
-      company: null,
+      isContractAvailable: true,
+      isFormDisabled: false,
+      verificationMessage: "",
+
       required,
       timezoneOptions: TIMEZONE_CHOICES,
     };
@@ -294,8 +307,45 @@ export default {
       createContract: "appData/createContract",
       getContractStatuses: "appData/getContractStatuses",
       getUsers: "appData/getUsers",
-      getCompanys: "appData/getCompanys",
+      verifyContract: "appData/verifyContract",
     }),
+    async checkContractAvailability() {
+      if (!this.noticeId || this.noticeId.trim() === "") {
+        this.verificationMessage = "";
+        this.isContractAvailable = true;
+        this.isFormDisabled = false;
+        return;
+      }
+
+      try {
+        const payload = {
+          notice_id: this.noticeId,
+        };
+        const response = await this.verifyContract(payload);
+
+        if (response.status === 200) {
+          // Status 200 means contract is available
+          this.verificationMessage =
+            response.data.msg || response.data.message || "";
+          this.isContractAvailable = true;
+          this.isFormDisabled = false;
+        }
+      } catch (error) {
+        // Error response (400) means contract is not available
+        if (error.response && error.response.data) {
+          this.verificationMessage =
+            error.response.data.msg ||
+            error.response.data.message ||
+            "Error verifying contract";
+          this.isContractAvailable = false;
+          this.isFormDisabled = true;
+        } else {
+          this.verificationMessage = "Error verifying contract";
+          this.isContractAvailable = false;
+          this.isFormDisabled = true;
+        }
+      }
+    },
     async validationForm() {
       const success = await this.$refs.createContractFormValidation.validate();
       if (success) {
@@ -313,7 +363,6 @@ export default {
           manufacturer_name: this.manufacturerName || null,
           manufacturer_email: this.manufacturerEmail || null,
           notes: this.notes || null,
-          company: this.company.id,
           created_by: this.getLoggedInUser.id,
           updated_by: this.getLoggedInUser.id,
         };

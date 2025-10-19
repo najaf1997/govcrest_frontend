@@ -30,13 +30,74 @@
                 placeholder="Notice ID"
               />
             </b-form-group>
+            <div v-if="searchType.value === 2" class="w-50">
+              <VueSelectPaginated
+                placeholder="Contract Status"
+                name="Contract Status"
+                label="name"
+                searchBy="name"
+                :getListMethod="getContractStatuses"
+                @setMethod="
+                  (value) => {
+                    contractStatusObj = value;
+                  }
+                "
+                :optionLabel="(option) => option.name"
+              />
+            </div>
+            <div v-if="searchType.value === 3" class="w-50">
+              <VueSelectPaginated
+                placeholder="POC"
+                name="POC"
+                label="full_name"
+                searchBy="name"
+                :getListMethod="getUsers"
+                @setMethod="
+                  (value) => {
+                    pocObj = value;
+                  }
+                "
+                :optionLabel="(option) => option.full_name"
+              />
+            </div>
             <b-form-group
-              label="Title"
-              label-for="title"
+              label="Issue Date"
+              label-for="issueDate"
               class="w-50"
-              v-if="searchType.value === 2"
+              v-if="searchType.value === 4"
             >
-              <b-form-input id="title" v-model="title" placeholder="Title" />
+              <b-form-input
+                id="issueDate"
+                v-model="issueDate"
+                type="date"
+                placeholder="Issue Date"
+              />
+            </b-form-group>
+            <b-form-group
+              label="Expiry Date"
+              label-for="expiryDate"
+              class="w-50"
+              v-if="searchType.value === 5"
+            >
+              <b-form-input
+                id="expiryDate"
+                v-model="expiryDate"
+                placeholder="Expiry Date"
+                type="date"
+              />
+            </b-form-group>
+            <b-form-group
+              label="Inactive Date"
+              label-for="inactiveDate"
+              class="w-50"
+              v-if="searchType.value === 6"
+            >
+              <b-form-input
+                id="inactiveDate"
+                v-model="inactiveDate"
+                type="date"
+                placeholder="Inactive Date"
+              />
             </b-form-group>
           </div>
         </b-col>
@@ -139,6 +200,16 @@
         </template>
         <template #cell(manage)="row">
           <b-button
+            variant="primary"
+            pill
+            size="sm"
+            class="mr-50"
+            @click="viewContract(row.item)"
+            v-if="hasPermission('read_contract')"
+          >
+            <feather-icon icon="EyeIcon" size="14" />
+          </b-button>
+          <b-button
             variant="info"
             pill
             size="sm"
@@ -146,17 +217,16 @@
             @click="editContract(row.item)"
             v-if="hasPermission('update_contract')"
           >
-            Edit
+            <feather-icon icon="EditIcon" size="14" />
           </b-button>
           <b-button
             variant="danger"
             pill
             size="sm"
-            class="mr-50"
             @click="removeContract(row.item)"
             v-if="hasPermission('delete_contract')"
           >
-            Delete
+            <feather-icon icon="TrashIcon" size="14" />
           </b-button>
         </template>
       </b-table>
@@ -176,6 +246,12 @@
       @modalClosed="onModalClosed"
       :key="`edit-${editContractModalCount}`"
     />
+    <ViewContractModal
+      :contract="contract"
+      @edit-contract="editContractFromView"
+      @delete-contract="removeContract"
+      :key="`view-${viewContractModalCount}`"
+    />
   </div>
 </template>
 
@@ -184,6 +260,7 @@ import { mapActions, mapGetters } from "vuex";
 import VueSelectPaginated from "@/components/ui/VueSelectPaginated.vue";
 import CreateContractModal from "@/components/contract/CreateContractModal.vue";
 import EditContractModal from "@/components/contract/EditContractModal.vue";
+import ViewContractModal from "@/components/contract/ViewContractModal.vue";
 
 import util from "@/util.js";
 
@@ -191,6 +268,7 @@ export default {
   components: {
     CreateContractModal,
     EditContractModal,
+    ViewContractModal,
     VueSelectPaginated,
   },
   data() {
@@ -201,17 +279,14 @@ export default {
         { key: "company", label: "Company" },
         { key: "contract_status", label: "Status" },
         { key: "poc", label: "POC" },
-        { key: "manufacturer_name", label: "Manufacturer" },
-        { key: "manufacturer_email", label: "Manufacturer Email" },
         { key: "issue_date", label: "Issue Date" },
         { key: "expiry_date", label: "Expiry Date" },
         { key: "expiry_timezone", label: "Timezone" },
         { key: "inactive_date", label: "Inactive Date" },
         { key: "submitted_at", label: "Submitted At" },
         { key: "awarded_at", label: "Awarded At" },
-        { key: "notes", label: "Notes" },
         { key: "contract_link", label: "Contract Link" },
-        { key: "manage", label: "Manage" },
+        { key: "manage", label: "Manage", thStyle: { minWidth: "200px" } },
       ],
       currentPage: 1,
       perPage: 0,
@@ -220,13 +295,22 @@ export default {
       contract: null,
       editContractModalCount: 0,
       createContractModalCount: 0,
+      viewContractModalCount: 0,
       searchTypes: [
         { value: 1, name: "Notice ID" },
-        { value: 2, name: "Title" },
+        { value: 2, name: "Contract Status" },
+        { value: 3, name: "POC" },
+        { value: 4, name: "Issue Date" },
+        { value: 5, name: "Expiry Date" },
+        { value: 6, name: "Inactive Date" },
       ],
       searchType: null,
       noticeId: "",
-      title: "",
+      contractStatusObj: null,
+      pocObj: null,
+      issueDate: "",
+      expiryDate: "",
+      inactiveDate: "",
     };
   },
   mixins: [util],
@@ -240,6 +324,8 @@ export default {
     ...mapActions({
       getContracts: "appData/getContracts",
       deleteContract: "appData/deleteContract",
+      getUsers: "appData/getUsers",
+      getContractStatuses: "appData/getContractStatuses",
     }),
     getContrastColor(hexColor) {
       // Convert hex to RGB
@@ -268,15 +354,55 @@ export default {
       if (this.searchType) {
         switch (this.searchType.value) {
           case 1:
-            this.title = "";
+            this.contractStatusObj = null;
+            this.pocObj = null;
+            this.issueDate = "";
+            this.expiryDate = "";
+            this.inactiveDate = "";
             break;
           case 2:
             this.noticeId = "";
+            this.pocObj = null;
+            this.issueDate = "";
+            this.expiryDate = "";
+            this.inactiveDate = "";
+            break;
+          case 3:
+            this.noticeId = "";
+            this.contractStatusObj = null;
+            this.issueDate = "";
+            this.expiryDate = "";
+            this.inactiveDate = "";
+            break;
+          case 4:
+            this.noticeId = "";
+            this.contractStatusObj = null;
+            this.pocObj = null;
+            this.expiryDate = "";
+            this.inactiveDate = "";
+            break;
+          case 5:
+            this.noticeId = "";
+            this.contractStatusObj = null;
+            this.pocObj = null;
+            this.issueDate = "";
+            this.inactiveDate = "";
+            break;
+          case 6:
+            this.noticeId = "";
+            this.contractStatusObj = null;
+            this.pocObj = null;
+            this.issueDate = "";
+            this.expiryDate = "";
             break;
         }
       } else {
         this.noticeId = "";
-        this.title = "";
+        this.contractStatusObj = null;
+        this.pocObj = null;
+        this.issueDate = "";
+        this.expiryDate = "";
+        this.inactiveDate = "";
       }
       this.currentPage = 1;
       await this.fetchPaginatedData();
@@ -286,7 +412,13 @@ export default {
         const res = await this.getContracts({
           pageNumber: this.currentPage,
           notice_id: this.noticeId,
-          title: this.title,
+          contract_status: this.contractStatusObj
+            ? this.contractStatusObj.name
+            : "",
+          poc: this.pocObj ? this.pocObj.full_name : "",
+          issue_date: this.issueDate,
+          expiry_date: this.expiryDate,
+          inactive_date: this.inactiveDate,
         });
         this.contracts = res.data.results;
         this.totalItems = res.data.count;
@@ -301,7 +433,21 @@ export default {
         this.$bvModal.show("create-contract-modal");
       });
     },
+    viewContract(contract) {
+      this.contract = contract;
+      this.viewContractModalCount += 1;
+      this.$nextTick(() => {
+        this.$bvModal.show("view-contract-modal");
+      });
+    },
     editContract(contract) {
+      this.contract = contract;
+      this.editContractModalCount += 1;
+      this.$nextTick(() => {
+        this.$bvModal.show("edit-contract-modal");
+      });
+    },
+    editContractFromView(contract) {
       this.contract = contract;
       this.editContractModalCount += 1;
       this.$nextTick(() => {

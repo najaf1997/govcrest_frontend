@@ -258,13 +258,36 @@ export default {
       const res = await axiosIns.delete(`contract-status/${pk}/`);
       return res;
     },
-    async getContracts({ commit }, { pageNumber, notice_id, title }) {
+    async getContracts(
+      { commit },
+      {
+        pageNumber,
+        notice_id,
+        contract_status,
+        poc,
+        issue_date,
+        expiry_date,
+        inactive_date,
+      }
+    ) {
       let url = `contract/?page=${pageNumber}`;
       if (notice_id) {
         url += `&notice_id=${notice_id}`;
       }
-      if (title) {
-        url += `&title=${title}`;
+      if (contract_status) {
+        url += `&contract_status=${contract_status}`;
+      }
+      if (poc) {
+        url += `&poc=${poc}`;
+      }
+      if (issue_date) {
+        url += `&issue_date=${issue_date}`;
+      }
+      if (expiry_date) {
+        url += `&expiry_date=${expiry_date}`;
+      }
+      if (inactive_date) {
+        url += `&inactive_date=${inactive_date}`;
       }
       const res = await axiosIns.get(url);
       return res;
@@ -357,6 +380,10 @@ export default {
     },
     async getEmployeeReport({ commit }, payload) {
       const res = await axiosIns.post("employee-report/", payload);
+      return res;
+    },
+    async verifyContract({ commit }, payload) {
+      const res = await axiosIns.post("contract-verification/", payload);
       return res;
     },
   },
