@@ -31,6 +31,10 @@ export const TIMEZONE_CHOICES = [
     label: "EST - Eastern Standard Time (America/New_York)",
   },
   {
+    value: "America/New_York",
+    label: "EDT - Eastern Standard Time (America/New_York)",
+  },
+  {
     value: "America/Chicago",
     label: "CST - Central Standard Time (America/Chicago)",
   },
@@ -97,6 +101,18 @@ export const TIMEZONE_CHOICES = [
   {
     value: "America/St_Johns",
     label: "NST - Newfoundland Standard Time (America/St_Johns)",
+  },
+  {
+    value: "America/Chicago",
+    label: "CDT - Central Daylight Time (America/Chicago)",
+  },
+  {
+    value: "America/Los_Angeles",
+    label: "PDT - Pacific Daylight Time (America/Los_Angeles)",
+  },
+  {
+    value: "America/Denver",
+    label: "MDT - Mountain Daylight Time (America/Denver)",
   },
 ];
 
