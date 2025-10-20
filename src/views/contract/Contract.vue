@@ -215,7 +215,15 @@
             size="sm"
             class="mr-50"
             @click="editContract(row.item)"
-            v-if="hasPermission('update_contract')"
+            v-if="
+              hasPermission('update_contract') &&
+              (hasRole('su') ||
+                hasRole('ca') ||
+                (hasRole('emp') &&
+                  row.item.poc &&
+                  getLoggedInUser &&
+                  row.item.poc.id === getLoggedInUser.id))
+            "
           >
             <feather-icon icon="EditIcon" size="14" />
           </b-button>
@@ -224,7 +232,15 @@
             pill
             size="sm"
             @click="removeContract(row.item)"
-            v-if="hasPermission('delete_contract')"
+            v-if="
+              hasPermission('delete_contract') &&
+              (hasRole('su') ||
+                hasRole('ca') ||
+                (hasRole('emp') &&
+                  row.item.poc &&
+                  getLoggedInUser &&
+                  row.item.poc.id === getLoggedInUser.id))
+            "
           >
             <feather-icon icon="TrashIcon" size="14" />
           </b-button>
@@ -319,6 +335,7 @@ export default {
   },
   async mounted() {
     await this.fetchPaginatedData();
+    console.log("Logged in user:", this.getLoggedInUser);
   },
   methods: {
     ...mapActions({
@@ -504,6 +521,8 @@ export default {
   computed: {
     ...mapGetters({
       hasPermission: "appData/hasPermission",
+      hasRole: "appData/hasRole",
+      getLoggedInUser: "appData/getLoggedInUser",
     }),
   },
   watch: {

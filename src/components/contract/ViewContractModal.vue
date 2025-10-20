@@ -372,7 +372,15 @@
           variant="info"
           pill
           @click="editContract"
-          v-if="hasPermission('update_contract')"
+          v-if="
+            hasPermission('update_contract') &&
+            (hasRole('su') ||
+              hasRole('ca') ||
+              (hasRole('emp') &&
+                this.contract.poc &&
+                getLoggedInUser &&
+                this.contract.poc.id === getLoggedInUser.id))
+          "
           class="mr-1"
         >
           <feather-icon icon="EditIcon" size="16" class="mr-50" />
@@ -382,7 +390,15 @@
           variant="danger"
           pill
           @click="deleteContract"
-          v-if="hasPermission('delete_contract')"
+          v-if="
+            hasPermission('delete_contract') &&
+            (hasRole('su') ||
+              hasRole('ca') ||
+              (hasRole('emp') &&
+                this.contract.poc &&
+                getLoggedInUser &&
+                this.contract.poc.id === getLoggedInUser.id))
+          "
         >
           <feather-icon icon="TrashIcon" size="16" class="mr-50" />
           Delete
@@ -442,6 +458,8 @@ export default {
   computed: {
     ...mapGetters({
       hasPermission: "appData/hasPermission",
+      hasRole: "appData/hasRole",
+      getLoggedInUser: "appData/getLoggedInUser",
     }),
   },
 };
