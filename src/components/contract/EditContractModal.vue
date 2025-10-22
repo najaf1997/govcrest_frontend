@@ -156,45 +156,6 @@
         </b-form-row>
         <b-form-row>
           <b-col md="6">
-            <b-form-group label-for="manufacturerName">
-              <template #label> Manufacturer Name </template>
-              <validation-provider
-                #default="{ errors }"
-                name="Manufacturer Name"
-              >
-                <b-form-input
-                  id="manufacturerName"
-                  v-model="manufacturerName"
-                  :state="errors.length > 0 ? false : null"
-                  placeholder="Manufacturer Name"
-                  :disabled="isFormDisabled"
-                />
-                <small class="text-danger">{{ errors[0] }}</small>
-              </validation-provider>
-            </b-form-group>
-          </b-col>
-          <b-col md="6">
-            <b-form-group label-for="manufacturerEmail">
-              <template #label> Manufacturer Email </template>
-              <validation-provider
-                #default="{ errors }"
-                name="Manufacturer Email"
-              >
-                <b-form-input
-                  id="manufacturerEmail"
-                  v-model="manufacturerEmail"
-                  type="email"
-                  :state="errors.length > 0 ? false : null"
-                  placeholder="Manufacturer Email"
-                  :disabled="isFormDisabled"
-                />
-                <small class="text-danger">{{ errors[0] }}</small>
-              </validation-provider>
-            </b-form-group>
-          </b-col>
-        </b-form-row>
-        <b-form-row>
-          <b-col md="6">
             <VueSelectPaginated
               placeholder="Contract Status"
               name="Contract Status"
@@ -245,6 +206,118 @@
             </b-form-group>
           </b-col>
         </b-form-row>
+
+        <!-- RFQ Submitted Status - Manufacturer Information -->
+        <div v-if="contractStatus && contractStatus.name === 'RFQ Submitted'">
+          <b-alert variant="info" show class="mb-3">
+            <strong>Note:</strong> You can only update status to RFQ Submitted
+            after adding the manufacturer information below.
+          </b-alert>
+
+          <b-form-row>
+            <b-col md="6">
+              <b-form-group label-for="manufacturerName">
+                <template #label>
+                  Manufacturer Name <span class="text-danger">*</span>
+                </template>
+                <validation-provider
+                  #default="{ errors }"
+                  name="Manufacturer Name"
+                  :rules="{
+                    required:
+                      contractStatus && contractStatus.name === 'RFQ Submitted',
+                  }"
+                >
+                  <b-form-input
+                    id="manufacturerName"
+                    v-model="manufacturerName"
+                    :state="errors.length > 0 ? false : null"
+                    placeholder="Manufacturer Name"
+                    :disabled="isFormDisabled"
+                  />
+                  <small class="text-danger">{{ errors[0] }}</small>
+                </validation-provider>
+              </b-form-group>
+            </b-col>
+            <b-col md="6">
+              <b-form-group label-for="manufacturerEmail">
+                <template #label>
+                  Manufacturer Email <span class="text-danger">*</span>
+                </template>
+                <validation-provider
+                  #default="{ errors }"
+                  name="Manufacturer Email"
+                  :rules="{
+                    required:
+                      contractStatus && contractStatus.name === 'RFQ Submitted',
+                    email: true,
+                  }"
+                >
+                  <b-form-input
+                    id="manufacturerEmail"
+                    v-model="manufacturerEmail"
+                    type="email"
+                    :state="errors.length > 0 ? false : null"
+                    placeholder="Manufacturer Email"
+                    :disabled="isFormDisabled"
+                  />
+                  <small class="text-danger">{{ errors[0] }}</small>
+                </validation-provider>
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+
+          <b-form-row>
+            <b-col md="6">
+              <b-form-group label-for="manufacturerPhone">
+                <template #label>
+                  Manufacturer Phone <span class="text-danger">*</span>
+                </template>
+                <validation-provider
+                  #default="{ errors }"
+                  name="Manufacturer Phone"
+                  :rules="{
+                    required:
+                      contractStatus && contractStatus.name === 'RFQ Submitted',
+                  }"
+                >
+                  <b-form-input
+                    id="manufacturerPhone"
+                    v-model="manufacturerPhone"
+                    :state="errors.length > 0 ? false : null"
+                    placeholder="Manufacturer Phone"
+                    :disabled="isFormDisabled"
+                  />
+                  <small class="text-danger">{{ errors[0] }}</small>
+                </validation-provider>
+              </b-form-group>
+            </b-col>
+            <b-col md="6">
+              <b-form-group label-for="manufacturerLink">
+                <template #label>
+                  Manufacturer Link <span class="text-danger">*</span>
+                </template>
+                <validation-provider
+                  #default="{ errors }"
+                  name="Manufacturer Link"
+                  :rules="{
+                    required:
+                      contractStatus && contractStatus.name === 'RFQ Submitted',
+                  }"
+                >
+                  <b-form-input
+                    id="manufacturerLink"
+                    v-model="manufacturerLink"
+                    :state="errors.length > 0 ? false : null"
+                    placeholder="Manufacturer Link"
+                    :disabled="isFormDisabled"
+                  />
+                  <small class="text-danger">{{ errors[0] }}</small>
+                </validation-provider>
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+        </div>
       </b-form>
     </validation-observer>
     <template #modal-footer>
@@ -295,6 +368,8 @@ export default {
       inactiveDate: "",
       manufacturerName: "",
       manufacturerEmail: "",
+      manufacturerPhone: "",
+      manufacturerLink: "",
       notes: "",
       contractStatus: null,
       poc: null,
@@ -384,6 +459,8 @@ export default {
       );
       this.manufacturerName = this.contract.manufacturer_name || "";
       this.manufacturerEmail = this.contract.manufacturer_email || "";
+      this.manufacturerPhone = this.contract.manufacturer_phone || "";
+      this.manufacturerLink = this.contract.manufacturer_link || "";
       this.notes = this.contract.notes || "";
 
       if (this.contract.contract_status) {
@@ -419,6 +496,8 @@ export default {
           inactive_date: this.inactiveDate || null,
           manufacturer_name: this.manufacturerName || null,
           manufacturer_email: this.manufacturerEmail || null,
+          manufacturer_phone: this.manufacturerPhone || null,
+          manufacturer_link: this.manufacturerLink || null,
           notes: this.notes || null,
           updated_by: this.getLoggedInUser.id,
         };

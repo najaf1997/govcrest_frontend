@@ -1,124 +1,19 @@
 <template>
   <div>
-    <div class="text-right mb-1">
-      <b-button
-        variant="primary"
-        pill
-        @click="createContract"
-        v-if="hasPermission('create_contract')"
-      >
-        <feather-icon icon="PlusIcon" class="mr-50" />
-        <span class="align-middle">Create</span>
-      </b-button>
-    </div>
+    <b-row class="mb-1" align-v="center">
+      <b-col md="12" class="text-right">
+        <b-button
+          variant="primary"
+          pill
+          @click="createContract"
+          v-if="hasPermission('create_contract')"
+        >
+          <feather-icon icon="PlusIcon" class="mr-50" />
+          <span class="align-middle">Create</span>
+        </b-button>
+      </b-col>
+    </b-row>
     <b-card>
-      <b-row class="mb-1" align-v="center">
-        <b-col md="7">
-          <div v-if="searchType">
-            <b-form-group
-              label="Notice ID"
-              label-for="noticeId"
-              class="w-50"
-              v-if="searchType.value === 1"
-            >
-              <b-input-group>
-                <template #prepend> </template>
-              </b-input-group>
-              <b-form-input
-                id="noticeId"
-                v-model="noticeId"
-                placeholder="Notice ID"
-              />
-            </b-form-group>
-            <div v-if="searchType.value === 2" class="w-50">
-              <VueSelectPaginated
-                placeholder="Contract Status"
-                name="Contract Status"
-                label="name"
-                searchBy="name"
-                :getListMethod="getContractStatuses"
-                @setMethod="
-                  (value) => {
-                    contractStatusObj = value;
-                  }
-                "
-                :optionLabel="(option) => option.name"
-              />
-            </div>
-            <div v-if="searchType.value === 3" class="w-50">
-              <VueSelectPaginated
-                placeholder="POC"
-                name="POC"
-                label="full_name"
-                searchBy="name"
-                :getListMethod="getUsers"
-                @setMethod="
-                  (value) => {
-                    pocObj = value;
-                  }
-                "
-                :optionLabel="(option) => option.full_name"
-              />
-            </div>
-            <b-form-group
-              label="Issue Date"
-              label-for="issueDate"
-              class="w-50"
-              v-if="searchType.value === 4"
-            >
-              <b-form-input
-                id="issueDate"
-                v-model="issueDate"
-                type="date"
-                placeholder="Issue Date"
-              />
-            </b-form-group>
-            <b-form-group
-              label="Expiry Date"
-              label-for="expiryDate"
-              class="w-50"
-              v-if="searchType.value === 5"
-            >
-              <b-form-input
-                id="expiryDate"
-                v-model="expiryDate"
-                placeholder="Expiry Date"
-                type="date"
-              />
-            </b-form-group>
-            <b-form-group
-              label="Inactive Date"
-              label-for="inactiveDate"
-              class="w-50"
-              v-if="searchType.value === 6"
-            >
-              <b-form-input
-                id="inactiveDate"
-                v-model="inactiveDate"
-                type="date"
-                placeholder="Inactive Date"
-              />
-            </b-form-group>
-          </div>
-        </b-col>
-        <b-col md="3">
-          <b-form-group label="Search Type" label-for="searchType">
-            <v-select
-              id="searchType"
-              v-model="searchType"
-              :options="searchTypes"
-              placeholder="Search Type"
-              label="name"
-            />
-          </b-form-group>
-        </b-col>
-        <b-col md="2">
-          <b-button variant="primary" pill @click="search">
-            <feather-icon icon="SearchIcon" class="mr-50" />
-            <span class="align-middle">Search</span>
-          </b-button>
-        </b-col>
-      </b-row>
       <b-table
         responsive
         :fields="fields"
@@ -127,7 +22,120 @@
         small
         v-if="hasPermission('read_contract')"
         :per-page="0"
+        :tbody-tr-class="getRowClass"
       >
+        <!-- Column Header Filters -->
+        <template #head(notice_id)>
+          <div class="d-flex flex-column">
+            <span class="mb-1 font-weight-bold">Notice ID</span>
+            <b-input-group size="sm">
+              <b-form-input
+                v-model="noticeId"
+                placeholder="Filter..."
+                @input="fetchPaginatedData"
+              ></b-form-input>
+              <b-input-group-append>
+                <b-button
+                  size="sm"
+                  variant="outline-secondary"
+                  @click="
+                    noticeId = '';
+                    fetchPaginatedData();
+                  "
+                  v-if="noticeId"
+                >
+                  <feather-icon icon="XIcon" size="12" />
+                </b-button>
+              </b-input-group-append>
+            </b-input-group>
+          </div>
+        </template>
+        <template #head(contract_status)>
+          <div class="d-flex flex-column">
+            <span class="mb-50 font-weight-bold">Contract Status</span>
+            <VueSelectPaginated
+              name=""
+              label="name"
+              searchBy="name"
+              :prevSelected="contractStatusObj"
+              :getListMethod="getContractStatuses"
+              customClass="column-filter-select"
+              @setMethod="
+                (value) => {
+                  contractStatusObj = value;
+                }
+              "
+            />
+          </div>
+        </template>
+        <template #head(poc)>
+          <div class="d-flex flex-column">
+            <span class="mb-50 font-weight-bold">POC</span>
+            <VueSelectPaginated
+              name=""
+              label="full_name"
+              searchBy="name"
+              :prevSelected="pocObj"
+              :getListMethod="getUsers"
+              customClass="column-filter-select"
+              @setMethod="
+                (value) => {
+                  pocObj = value;
+                }
+              "
+            />
+          </div>
+        </template>
+        <template #head(issue_date)>
+          <div class="d-flex flex-column">
+            <span class="mb-1 font-weight-bold">Issue Date</span>
+            <b-form-input
+              v-model="issueDate"
+              type="date"
+              size="sm"
+              @change="fetchPaginatedData"
+            ></b-form-input>
+          </div>
+        </template>
+        <template #head(expiry_date)>
+          <div class="d-flex flex-column">
+            <span class="mb-1 font-weight-bold">Expiry Date</span>
+            <b-form-input
+              v-model="expiryDate"
+              type="date"
+              size="sm"
+              @change="fetchPaginatedData"
+            ></b-form-input>
+          </div>
+        </template>
+        <template #head(inactive_date)>
+          <div class="d-flex flex-column">
+            <span class="mb-1 font-weight-bold">Inactive Date</span>
+            <b-form-input
+              v-model="inactiveDate"
+              type="date"
+              size="sm"
+              @change="fetchPaginatedData"
+            ></b-form-input>
+          </div>
+        </template>
+
+        <template #cell(notice_id)="row">
+          <div class="d-flex align-items-center">
+            <!-- Expiry Alert Indicator -->
+            <b-badge
+              v-if="row.item.expiry_alert && row.item.expiry_alert.alert"
+              variant="danger"
+              pill
+              class="mr-2 alert-badge-pop"
+              v-b-tooltip.hover
+              :title="`Contract will expire in ${row.item.expiry_alert.days_until_expiry} days`"
+            >
+              <feather-icon icon="AlertTriangleIcon" size="14" />
+            </b-badge>
+            <span>{{ row.item.notice_id }}</span>
+          </div>
+        </template>
         <template #cell(created_by_data)="row">
           {{
             row.item.created_by_data ? row.item.created_by_data.username : ""
@@ -290,18 +298,53 @@ export default {
   data() {
     return {
       fields: [
-        { key: "notice_id", label: "Notice ID" },
-        { key: "title", label: "Title" },
-        { key: "company", label: "Company" },
-        { key: "contract_status", label: "Status" },
-        { key: "poc", label: "POC" },
-        { key: "issue_date", label: "Issue Date" },
-        { key: "expiry_date", label: "Expiry Date" },
-        { key: "expiry_timezone", label: "Timezone" },
-        { key: "inactive_date", label: "Inactive Date" },
-        { key: "submitted_at", label: "Submitted At" },
-        { key: "awarded_at", label: "Awarded At" },
-        { key: "contract_link", label: "Contract Link" },
+        {
+          key: "notice_id",
+          label: "Notice ID",
+          thStyle: { minWidth: "200px" },
+        },
+        { key: "title", label: "Title", thStyle: { minWidth: "200px" } },
+        {
+          key: "contract_status",
+          label: "Status",
+          thStyle: { minWidth: "200px" },
+        },
+        { key: "poc", label: "POC", thStyle: { minWidth: "200px" } },
+        {
+          key: "issue_date",
+          label: "Issue Date",
+          thStyle: { minWidth: "200px" },
+        },
+        {
+          key: "expiry_date",
+          label: "Expiry Date",
+          thStyle: { minWidth: "200px" },
+        },
+        {
+          key: "expiry_timezone",
+          label: "Timezone",
+          thStyle: { minWidth: "200px" },
+        },
+        {
+          key: "inactive_date",
+          label: "Inactive Date",
+          thStyle: { minWidth: "200px" },
+        },
+        {
+          key: "submitted_at",
+          label: "Submitted At",
+          thStyle: { minWidth: "200px" },
+        },
+        {
+          key: "awarded_at",
+          label: "Awarded At",
+          thStyle: { minWidth: "200px" },
+        },
+        {
+          key: "contract_link",
+          label: "Contract Link",
+          thStyle: { minWidth: "200px" },
+        },
         { key: "manage", label: "Manage", thStyle: { minWidth: "200px" } },
       ],
       currentPage: 1,
@@ -312,15 +355,6 @@ export default {
       editContractModalCount: 0,
       createContractModalCount: 0,
       viewContractModalCount: 0,
-      searchTypes: [
-        { value: 1, name: "Notice ID" },
-        { value: 2, name: "Contract Status" },
-        { value: 3, name: "POC" },
-        { value: 4, name: "Issue Date" },
-        { value: 5, name: "Expiry Date" },
-        { value: 6, name: "Inactive Date" },
-      ],
-      searchType: null,
       noticeId: "",
       contractStatusObj: null,
       pocObj: null,
@@ -330,9 +364,6 @@ export default {
     };
   },
   mixins: [util],
-  created() {
-    this.searchType = this.searchTypes[0];
-  },
   async mounted() {
     await this.fetchPaginatedData();
     console.log("Logged in user:", this.getLoggedInUser);
@@ -366,63 +397,6 @@ export default {
       if (!text) return "";
       if (text.length <= maxLength) return text;
       return text.substring(0, maxLength) + "...";
-    },
-    async search() {
-      if (this.searchType) {
-        switch (this.searchType.value) {
-          case 1:
-            this.contractStatusObj = null;
-            this.pocObj = null;
-            this.issueDate = "";
-            this.expiryDate = "";
-            this.inactiveDate = "";
-            break;
-          case 2:
-            this.noticeId = "";
-            this.pocObj = null;
-            this.issueDate = "";
-            this.expiryDate = "";
-            this.inactiveDate = "";
-            break;
-          case 3:
-            this.noticeId = "";
-            this.contractStatusObj = null;
-            this.issueDate = "";
-            this.expiryDate = "";
-            this.inactiveDate = "";
-            break;
-          case 4:
-            this.noticeId = "";
-            this.contractStatusObj = null;
-            this.pocObj = null;
-            this.expiryDate = "";
-            this.inactiveDate = "";
-            break;
-          case 5:
-            this.noticeId = "";
-            this.contractStatusObj = null;
-            this.pocObj = null;
-            this.issueDate = "";
-            this.inactiveDate = "";
-            break;
-          case 6:
-            this.noticeId = "";
-            this.contractStatusObj = null;
-            this.pocObj = null;
-            this.issueDate = "";
-            this.expiryDate = "";
-            break;
-        }
-      } else {
-        this.noticeId = "";
-        this.contractStatusObj = null;
-        this.pocObj = null;
-        this.issueDate = "";
-        this.expiryDate = "";
-        this.inactiveDate = "";
-      }
-      this.currentPage = 1;
-      await this.fetchPaginatedData();
     },
     async fetchPaginatedData() {
       try {
@@ -517,6 +491,13 @@ export default {
     async onModalClosed() {
       await this.fetchPaginatedData();
     },
+    getRowClass(item, type) {
+      if (!item || type !== "row") return "";
+      if (item.expiry_alert && item.expiry_alert.alert) {
+        return "table-danger";
+      }
+      return "";
+    },
   },
   computed: {
     ...mapGetters({
@@ -529,8 +510,126 @@ export default {
     currentPage: async function (val) {
       await this.fetchPaginatedData();
     },
+    contractStatusObj: async function (val) {
+      if (this.currentPage === 1) {
+        await this.fetchPaginatedData();
+      } else {
+        this.currentPage = 1;
+      }
+    },
+    pocObj: async function (val) {
+      if (this.currentPage === 1) {
+        await this.fetchPaginatedData();
+      } else {
+        this.currentPage = 1;
+      }
+    },
   },
 };
 </script>
 
-<style></style>
+<style scoped>
+.alert-badge-pop {
+  animation: popInOut 1.5s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+}
+
+@keyframes popInOut {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+  }
+  50% {
+    transform: scale(1.3);
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+  }
+}
+
+.table-danger {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.table-danger:hover {
+  background-color: rgba(220, 53, 69, 0.15) !important;
+}
+
+/* Hide the label from VueSelectPaginated in column filters */
+.column-filter-select .labelStyle {
+  display: none !important;
+  margin: 0 !important;
+}
+
+/* Remove extra margin from form group */
+.column-filter-select .form-group {
+  margin-bottom: 0 !important;
+}
+
+/* Make VueSelectPaginated look exactly like input fields - same colors and styling */
+.column-filter-select .vSelectStyle .vs__dropdown-toggle {
+  background-color: #fff !important;
+  background: #fff !important;
+  border: 1px solid #d8d6de !important;
+  border-radius: 0.357rem !important;
+  min-height: calc(1.5em + 0.75rem + 0px) !important;
+  padding: 0.375rem 0.75rem !important;
+}
+
+.column-filter-select .vSelectStyle .vs__search {
+  background-color: #fff !important;
+  background: #fff !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+  color: #5e5873 !important;
+}
+
+.column-filter-select .vSelectStyle .vs__dropdown-toggle * {
+  background-color: #fff !important;
+  background: #fff !important;
+}
+
+.column-filter-select .vSelectStyle {
+  background-color: #fff !important;
+  background: #fff !important;
+}
+
+.column-filter-select .vSelectStyle .vs__dropdown-toggle:focus-within {
+  border-color: #1a6330 !important;
+  box-shadow: 0 0 0 0.2rem rgba(15, 74, 17, 0.15) !important;
+}
+
+.column-filter-select .vSelectStyle .vs__selected {
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  color: #5e5873 !important;
+}
+
+.column-filter-select .vSelectStyle .vs__actions {
+  padding: 0 0.5rem !important;
+}
+
+.column-filter-select .vSelectStyle .vs__clear {
+  fill: #6c757d !important;
+}
+
+.column-filter-select .vSelectStyle .vs__open-indicator {
+  fill: #6c757d !important;
+}
+
+/* Additional aggressive targeting */
+.vs__dropdown-toggle {
+  background-color: #fff !important;
+  background: #fff !important;
+}
+
+.vs__search {
+  background-color: #fff !important;
+  background: #fff !important;
+}
+</style>
