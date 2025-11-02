@@ -35,6 +35,14 @@
           <span>Profile</span>
         </b-dropdown-item-button>
 
+        <b-dropdown-item-button
+          button-class="w-100"
+          @click="openChangePasswordModal"
+        >
+          <feather-icon size="16" icon="LockIcon" class="mr-50" />
+          <span>Change Password</span>
+        </b-dropdown-item-button>
+
         <b-dropdown-divider />
 
         <b-dropdown-item-button button-class="w-100" @click="logoutButtonClick">
@@ -43,18 +51,34 @@
         </b-dropdown-item-button>
       </b-nav-item-dropdown>
     </b-navbar-nav>
+
+    <ChangePasswordModal
+      modal-id="navbar-change-password-modal"
+      :user="getLoggedInUser"
+      @modalClosed="onPasswordChangeModalClosed"
+      :key="`change-password-${changePasswordModalCount}`"
+    />
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import ChangePasswordModal from "@/components/user/ChangePasswordModal.vue";
 
 export default {
+  components: {
+    ChangePasswordModal,
+  },
   props: {
     toggleVerticalMenuActive: {
       type: Function,
       default: () => {},
     },
+  },
+  data() {
+    return {
+      changePasswordModalCount: 0,
+    };
   },
   methods: {
     ...mapActions({ logout: "appData/logout" }),
@@ -67,6 +91,17 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    },
+    openChangePasswordModal() {
+      this.changePasswordModalCount += 1;
+      this.$nextTick(() => {
+        // Use a unique modal ID to avoid conflicts
+        const modalId = "navbar-change-password-modal";
+        this.$bvModal.show(modalId);
+      });
+    },
+    onPasswordChangeModalClosed() {
+      // Modal closed, no action needed
     },
   },
   computed: {

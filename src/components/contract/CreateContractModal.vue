@@ -172,7 +172,7 @@
             />
           </b-col>
           <b-col md="6" v-if="!hasRole('emp')">
-            <VueSelectPaginated
+            <VueSelectPaginatedMultiple
               placeholder="Point of Contact"
               name="POC"
               label="full_name"
@@ -340,6 +340,7 @@
 import { mapActions, mapGetters } from "vuex";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 import VueSelectPaginated from "@/components/ui/VueSelectPaginated.vue";
+import VueSelectPaginatedMultiple from "@/components/ui/VueSelectPaginatedMultiple.vue";
 import { required } from "@validations";
 import util from "@/util.js";
 import { TIMEZONE_CHOICES } from "@/utils/timezones.js";
@@ -350,6 +351,7 @@ export default {
     ValidationProvider,
     ValidationObserver,
     VueSelectPaginated,
+    VueSelectPaginatedMultiple,
     vSelect,
   },
   mixins: [util],
@@ -368,7 +370,7 @@ export default {
       manufacturerLink: "",
       notes: "",
       contractStatus: null,
-      poc: null,
+      poc: [],
       isContractAvailable: true,
       isFormDisabled: false,
       verificationMessage: "",
@@ -454,8 +456,10 @@ export default {
         if (this.contractStatus) {
           payload.contract_status = this.contractStatus.id;
         }
-        if (this.poc) {
-          payload.poc = this.poc.id;
+        if (this.poc && this.poc.length > 0) {
+          payload.poc = Array.isArray(this.poc)
+            ? this.poc.map((user) => user.id)
+            : [this.poc.id];
         }
 
         const res = await this.createContract(payload);

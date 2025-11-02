@@ -386,5 +386,9 @@ export default {
       const res = await axiosIns.post("contract-verification/", payload);
       return res;
     },
+    async changePassword({ commit }, payload) {
+      const res = await axiosIns.post("admin/change-password/", payload);
+      return res;
+    },
   },
 };

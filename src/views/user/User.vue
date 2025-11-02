@@ -97,6 +97,18 @@
             Edit
           </b-button>
           <b-button
+            variant="warning"
+            pill
+            size="sm"
+            class="mr-50"
+            @click="changePasswordForUser(row.item)"
+            v-if="hasRole('ca') || hasRole('su')"
+            v-b-tooltip.hover
+            :title="`Change password for ${row.item.full_name}`"
+          >
+            <feather-icon icon="LockIcon" size="14" />
+          </b-button>
+          <b-button
             variant="danger"
             pill
             size="sm"
@@ -124,6 +136,11 @@
       @modalClosed="onModalClosed"
       :key="`edit-${editUserModalCount}`"
     />
+    <ChangePasswordModal
+      :user="selectedUser"
+      @modalClosed="onPasswordChangeModalClosed"
+      :key="`change-password-${changePasswordModalCount}`"
+    />
   </div>
 </template>
 
@@ -132,12 +149,14 @@ import { mapActions, mapGetters } from "vuex";
 import VueSelectPaginated from "@/components/ui/VueSelectPaginated.vue";
 import CreateUserModal from "@/components/user/CreateUserModal.vue";
 import EditUserModal from "@/components/user/EditUserModal.vue";
+import ChangePasswordModal from "@/components/user/ChangePasswordModal.vue";
 import util from "@/util.js";
 
 export default {
   components: {
     CreateUserModal,
     EditUserModal,
+    ChangePasswordModal,
     VueSelectPaginated,
   },
   data() {
@@ -155,8 +174,10 @@ export default {
       totalItems: 0,
       users: [],
       user: null,
+      selectedUser: null,
       editUserModalCount: 0,
       createUserModalCount: 0,
+      changePasswordModalCount: 0,
       searchTypes: [
         { value: 1, name: "Name" },
         { value: 2, name: "Username" },
@@ -268,10 +289,21 @@ export default {
     async onModalClosed() {
       await this.fetchPaginatedData();
     },
+    changePasswordForUser(user) {
+      this.selectedUser = user;
+      this.changePasswordModalCount += 1;
+      this.$nextTick(() => {
+        this.$bvModal.show("change-password-modal");
+      });
+    },
+    onPasswordChangeModalClosed() {
+      this.selectedUser = null;
+    },
   },
   computed: {
     ...mapGetters({
       hasPermission: "appData/hasPermission",
+      hasRole: "appData/hasRole",
     }),
   },
   watch: {

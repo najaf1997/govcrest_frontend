@@ -99,7 +99,7 @@
         </template>
         <template #head(expiry_date)>
           <div class="d-flex flex-column">
-            <span class="mb-1 font-weight-bold">Expiry Date</span>
+            <span class="mb-1 font-weight-bold">Expiry Date & Timezone</span>
             <b-form-input
               v-model="expiryDate"
               type="date"
@@ -162,21 +162,47 @@
           </span>
         </template>
         <template #cell(poc)="row">
-          {{ row.item.poc ? row.item.poc.full_name : "" }}
+          <div
+            v-if="
+              row.item.poc &&
+              Array.isArray(row.item.poc) &&
+              row.item.poc.length > 0
+            "
+            class="d-inline-flex"
+            style="flex-wrap: nowrap; white-space: nowrap"
+          >
+            <b-badge
+              v-for="user in row.item.poc"
+              :key="user.id"
+              variant="primary"
+              class="mr-1"
+            >
+              {{ user.full_name }}
+            </b-badge>
+          </div>
+          <span v-else-if="row.item.poc && !Array.isArray(row.item.poc)">
+            {{ row.item.poc.full_name }}
+          </span>
+          <span v-else>-</span>
         </template>
         <template #cell(issue_date)="row">
           {{ formatDate(row.item.issue_date) }}
         </template>
         <template #cell(expiry_date)="row">
-          {{ formatDate(row.item.expiry_date) }}
+          <span v-if="row.item.expiry_date">
+            {{ formatDate(row.item.expiry_date) }}
+            <small class="text-muted ml-1">
+              ({{
+                row.item.expiry_timezone_display ||
+                row.item.expiry_timezone ||
+                "-"
+              }})
+            </small>
+          </span>
+          <span v-else>-</span>
         </template>
         <template #cell(inactive_date)="row">
           {{ formatDate(row.item.inactive_date) }}
-        </template>
-        <template #cell(expiry_timezone)="row">
-          {{
-            row.item.expiry_timezone_display || row.item.expiry_timezone || "-"
-          }}
         </template>
         <template #cell(submitted_at)="row">
           {{ formatDate(row.item.submitted_at) }}
@@ -230,7 +256,12 @@
                 (hasRole('emp') &&
                   row.item.poc &&
                   getLoggedInUser &&
-                  row.item.poc.id === getLoggedInUser.id))
+                  ((Array.isArray(row.item.poc) &&
+                    row.item.poc.some(
+                      (poc) => poc.id === getLoggedInUser.id
+                    )) ||
+                    (!Array.isArray(row.item.poc) &&
+                      row.item.poc.id === getLoggedInUser.id))))
             "
           >
             <feather-icon icon="EditIcon" size="14" />
@@ -247,7 +278,12 @@
                 (hasRole('emp') &&
                   row.item.poc &&
                   getLoggedInUser &&
-                  row.item.poc.id === getLoggedInUser.id))
+                  ((Array.isArray(row.item.poc) &&
+                    row.item.poc.some(
+                      (poc) => poc.id === getLoggedInUser.id
+                    )) ||
+                    (!Array.isArray(row.item.poc) &&
+                      row.item.poc.id === getLoggedInUser.id))))
             "
           >
             <feather-icon icon="TrashIcon" size="14" />
@@ -310,36 +346,31 @@ export default {
           thStyle: { minWidth: "200px" },
         },
         { key: "poc", label: "POC", thStyle: { minWidth: "200px" } },
-        {
-          key: "issue_date",
-          label: "Issue Date",
-          thStyle: { minWidth: "200px" },
-        },
+        // {
+        //   key: "issue_date",
+        //   label: "Issue Date",
+        //   thStyle: { minWidth: "200px" },
+        // },
         {
           key: "expiry_date",
-          label: "Expiry Date",
+          label: "Expiry Date & Timezone",
           thStyle: { minWidth: "200px" },
         },
-        {
-          key: "expiry_timezone",
-          label: "Timezone",
-          thStyle: { minWidth: "200px" },
-        },
-        {
-          key: "inactive_date",
-          label: "Inactive Date",
-          thStyle: { minWidth: "200px" },
-        },
-        {
-          key: "submitted_at",
-          label: "Submitted At",
-          thStyle: { minWidth: "200px" },
-        },
-        {
-          key: "awarded_at",
-          label: "Awarded At",
-          thStyle: { minWidth: "200px" },
-        },
+        // {
+        //   key: "inactive_date",
+        //   label: "Inactive Date",
+        //   thStyle: { minWidth: "200px" },
+        // },
+        // {
+        //   key: "submitted_at",
+        //   label: "Submitted At",
+        //   thStyle: { minWidth: "200px" },
+        // },
+        // {
+        //   key: "awarded_at",
+        //   label: "Awarded At",
+        //   thStyle: { minWidth: "200px" },
+        // },
         {
           key: "contract_link",
           label: "Contract Link",

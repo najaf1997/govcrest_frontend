@@ -120,9 +120,30 @@
                   />
                   <span class="text-dark">Point of Contact:</span>
                 </div>
-                <strong class="text-right">{{
-                  contract.poc ? contract.poc.full_name : "-"
-                }}</strong>
+                <div class="text-right">
+                  <div
+                    v-if="
+                      contract.poc &&
+                      Array.isArray(contract.poc) &&
+                      contract.poc.length > 0
+                    "
+                  >
+                    <b-badge
+                      v-for="user in contract.poc"
+                      :key="user.id"
+                      variant="primary"
+                      class="mr-1 mb-1"
+                    >
+                      {{ user.full_name }}
+                    </b-badge>
+                  </div>
+                  <strong
+                    v-else-if="contract.poc && !Array.isArray(contract.poc)"
+                  >
+                    {{ contract.poc.full_name }}
+                  </strong>
+                  <strong v-else>-</strong>
+                </div>
               </b-list-group-item>
 
               <b-list-group-item
@@ -136,9 +157,29 @@
                   />
                   <span class="text-dark">POC Email:</span>
                 </div>
-                <strong class="text-right">{{
-                  contract.poc ? contract.poc.email : "-"
-                }}</strong>
+                <div class="text-right">
+                  <div
+                    v-if="
+                      contract.poc &&
+                      Array.isArray(contract.poc) &&
+                      contract.poc.length > 0
+                    "
+                  >
+                    <div
+                      v-for="user in contract.poc"
+                      :key="user.id"
+                      class="mb-1"
+                    >
+                      <strong>{{ user.email || "-" }}</strong>
+                    </div>
+                  </div>
+                  <strong
+                    v-else-if="contract.poc && !Array.isArray(contract.poc)"
+                  >
+                    {{ contract.poc.email || "-" }}
+                  </strong>
+                  <strong v-else>-</strong>
+                </div>
               </b-list-group-item>
             </b-list-group>
           </b-card>
@@ -379,7 +420,12 @@
               (hasRole('emp') &&
                 this.contract.poc &&
                 getLoggedInUser &&
-                this.contract.poc.id === getLoggedInUser.id))
+                ((Array.isArray(this.contract.poc) &&
+                  this.contract.poc.some(
+                    (poc) => poc.id === getLoggedInUser.id
+                  )) ||
+                  (!Array.isArray(this.contract.poc) &&
+                    this.contract.poc.id === getLoggedInUser.id))))
           "
           class="mr-1"
         >
@@ -397,7 +443,12 @@
               (hasRole('emp') &&
                 this.contract.poc &&
                 getLoggedInUser &&
-                this.contract.poc.id === getLoggedInUser.id))
+                ((Array.isArray(this.contract.poc) &&
+                  this.contract.poc.some(
+                    (poc) => poc.id === getLoggedInUser.id
+                  )) ||
+                  (!Array.isArray(this.contract.poc) &&
+                    this.contract.poc.id === getLoggedInUser.id))))
           "
         >
           <feather-icon icon="TrashIcon" size="16" class="mr-50" />
