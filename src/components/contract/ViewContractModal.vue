@@ -380,6 +380,39 @@
         </div>
       </b-card>
 
+      <!-- Status History -->
+      <b-card class="shadow-sm mb-1" v-if="contract.status_history && contract.status_history.length > 0">
+        <template #header>
+          <div class="d-flex align-items-center">
+            <feather-icon icon="ClockIcon" size="18" class="mr-50 text-primary" />
+            <h5 class="mb-0 font-weight-bold">Status History</h5>
+          </div>
+        </template>
+
+        <b-table
+          :items="contract.status_history"
+          :fields="statusHistoryFields"
+          responsive="sm"
+          class="mb-0"
+          striped
+          hover
+        >
+          <template #cell(changed_at_formatted)="data">
+            {{ formatDateTime(data.item.changed_at) }}
+          </template>
+          <template #cell(status_change)="data">
+            <div class="d-flex align-items-center">
+              <b-badge variant="light-secondary" class="mr-1">{{ data.item.old_status_name }}</b-badge>
+              <feather-icon icon="ArrowRightIcon" size="14" class="mx-50" />
+              <b-badge variant="primary">{{ data.item.new_status_name }}</b-badge>
+            </div>
+          </template>
+          <template #cell(changed_by_name)="data">
+            {{ data.item.changed_by_name !== 'None None' ? data.item.changed_by_name : '-' }}
+          </template>
+        </b-table>
+      </b-card>
+
       <!-- Notes -->
       <b-card class="shadow-sm" v-if="contract.notes">
         <template #header>
@@ -466,6 +499,15 @@ import moment from "moment";
 export default {
   props: {
     contract: Object,
+  },
+  data() {
+    return {
+      statusHistoryFields: [
+        { key: 'status_change', label: 'Status Change' },
+        { key: 'changed_at_formatted', label: 'Date & Time' },
+        { key: 'changed_by_name', label: 'Changed By' }
+      ],
+    };
   },
   methods: {
     getContrastColor(hexColor) {
