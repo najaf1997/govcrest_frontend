@@ -1,0 +1,78 @@
+// Custom styles for compact layout
+
+// Make the navbar more compact
+.navbar-container {
+  padding: 0.5rem 1rem !important;
+}
+
+// Reduce space between navbar and content
+.header-navbar-shadow {
+  height: 0.5rem !important;
+}
+
+// Make the content header more compact
+.content-header.compact-header {
+  margin-bottom: 0.5rem !important;
+  padding-bottom: 0 !important;
+}
+
+// Adjust spacing for the card
+.card {
+  margin-bottom: 1rem !important;
+}
+
+// Reduce padding in content area
+.content-wrapper {
+  padding: 0.75rem !important;
+}
+
+// Make the page title in navbar look good
+.navbar-container h2 {
+  font-size: 1.5rem !important;
+  margin-left: 0.5rem !important;
+}
+
+// Adjust table spacing
+.table td, .table th {
+  padding: 0.5rem 0.75rem !important;
+}
+
+// Reduce pagination margins
+.pagination {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0 !important;
+}
+
+// Style the breadcrumb in navbar
+.navbar-breadcrumb-list {
+  background-color: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.navbar-breadcrumb-list .breadcrumb-item {
+  font-size: 0.9rem !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+}
+
+.navbar-breadcrumb-list .breadcrumb-item + .breadcrumb-item {
+  padding-left: 0.5rem !important;
+}
+
+.navbar-breadcrumb-list .breadcrumb-item + .breadcrumb-item::before {
+  padding-right: 0.5rem !important;
+}
+
+// Adjust vertical alignment of breadcrumb items
+.navbar-breadcrumb {
+  display: flex !important;
+  align-items: center !important;
+}
+
+// Hide the breadcrumb component completely
+.content-header {
+  display: none !important;
+}

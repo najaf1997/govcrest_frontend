@@ -45,6 +45,9 @@ require("@core/scss/vue/pages/page-auth.scss");
 require("@core/scss/vue/libs/vue-wizard.scss");
 require("@core/scss/vue/libs/vue-select.scss");
 
+// import custom styles for compact layout
+require("@/assets/scss/custom.scss");
+
 Vue.config.productionTip = false;
 
 function checkAuth() {

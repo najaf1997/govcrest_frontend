@@ -14,6 +14,10 @@
 //  We suggest you to use this (assets/scss/variables/_variables-components.scss) file for overriding components variables.
 //  ================================================================================================
 
+// Custom variables for compact layout
+$compact-spacing: 0.5rem;
+$content-padding-reduced: 0.75rem;
+
 $base-font-size: 14px !default;
 $body-direction: ltr !default; // Default ltr, change it to rtl for Right To Left support.
 $content-padding: 2rem !default;

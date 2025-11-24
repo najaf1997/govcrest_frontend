@@ -7,6 +7,35 @@
         </b-link>
       </li>
     </ul>
+    
+    <!-- Page Title and Breadcrumb in Navbar -->
+    <div class="d-flex align-items-center">
+      <div class="navbar-breadcrumb d-flex align-items-center" v-if="$route.meta && ($route.meta.pageTitle || $route.meta.breadcrumb)">
+        <h2 class="mb-0 font-weight-bold mr-2" v-if="$route.meta.pageTitle">
+          {{ $route.meta.pageTitle }}
+        </h2>
+        <div class="breadcrumb-wrapper d-flex align-items-center" v-if="$route.meta.breadcrumb">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb navbar-breadcrumb-list p-0 m-0">
+              <li class="breadcrumb-item">
+                <router-link to="/">
+                  <feather-icon icon="HomeIcon" size="16" class="align-text-top" />
+                </router-link>
+              </li>
+              <li 
+                class="breadcrumb-item"
+                v-for="item in $route.meta.breadcrumb" 
+                :key="item.text"
+                :class="{ 'active': item.active }"
+              >
+                <router-link v-if="!item.active" :to="item.to || '/'">{{ item.text }}</router-link>
+                <span v-else>{{ item.text }}</span>
+              </li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
 
     <b-navbar-nav class="nav align-items-center ml-auto">
       <b-nav-item-dropdown

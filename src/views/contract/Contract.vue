@@ -5,6 +5,7 @@
         <b-button
           variant="primary"
           pill
+          size="sm"
           @click="createContract"
           v-if="hasPermission('create_contract')"
         >
@@ -99,12 +100,13 @@
         </template>
         <template #head(expiry_date)>
           <div class="d-flex flex-column">
-            <span class="mb-1 font-weight-bold">Expiry Date & Timezone</span>
+            <span class="mb-1 font-weight-bold">Expiry Date</span>
             <b-form-input
               v-model="expiryDate"
               type="date"
               size="sm"
               @change="fetchPaginatedData"
+              placeholder="Filter by expiry date"
             ></b-form-input>
           </div>
         </template>
@@ -190,14 +192,19 @@
         </template>
         <template #cell(expiry_date)="row">
           <span v-if="row.item.expiry_date">
-            {{ formatDate(row.item.expiry_date) }}
-            <small class="text-muted ml-1">
-              ({{
-                row.item.expiry_timezone_display ||
-                row.item.expiry_timezone ||
-                "-"
-              }})
-            </small>
+            <div class="d-flex align-items-center">
+              <span>{{ formatDate(row.item.expiry_date) }}</span>
+              <span class="font-weight-bold ml-1">
+                ({{
+                  row.item.expiry_timezone_display ||
+                  row.item.expiry_timezone ||
+                  "-"
+                }})
+              </span>
+            </div>
+            <div class="small mt-1 date-info">
+              <strong>Created:</strong> {{ formatDate(row.item.created_at) }}
+            </div>
           </span>
           <span v-else>-</span>
         </template>
@@ -353,8 +360,8 @@ export default {
         // },
         {
           key: "expiry_date",
-          label: "Expiry Date & Timezone",
-          thStyle: { minWidth: "200px" },
+          label: "Expiry Date",
+          thStyle: { minWidth: "250px" },
         },
         // {
         //   key: "inactive_date",
@@ -586,6 +593,13 @@ export default {
 
 .table-danger:hover {
   background-color: rgba(220, 53, 69, 0.15) !important;
+}
+
+.date-info {
+  color: #6e6b7b;
+  border-top: 1px dashed #e0e0e0;
+  padding-top: 3px;
+  margin-top: 3px !important;
 }
 
 /* Hide the label from VueSelectPaginated in column filters */
