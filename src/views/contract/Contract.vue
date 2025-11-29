@@ -194,13 +194,6 @@
           <span v-if="row.item.expiry_date">
             <div class="d-flex align-items-center">
               <span>{{ formatDate(row.item.expiry_date) }}</span>
-              <span class="font-weight-bold ml-1">
-                ({{
-                  row.item.expiry_timezone_display ||
-                  row.item.expiry_timezone ||
-                  "-"
-                }})
-              </span>
             </div>
             <div class="small mt-1 date-info">
               <strong>Created:</strong> {{ formatDate(row.item.created_at) }}
@@ -426,9 +419,12 @@ export default {
       // Return black for light colors, white for dark colors
       return luminance > 0.5 ? "#000000" : "#ffffff";
     },
-    formatDate(dateString) {
+    formatDate(dateString, includeTime = true) {
       if (!dateString) return "";
       const date = new Date(dateString);
+      if (includeTime) {
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
       return date.toLocaleDateString();
     },
     truncateText(text, maxLength) {

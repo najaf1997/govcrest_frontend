@@ -225,13 +225,14 @@
                     size="16"
                     class="mr-75 text-dark"
                   />
-                  <span class="text-dark">Expiry Date:</span>
+                  <span class="text-dark">Expires At (Local Time):</span>
                 </div>
                 <strong
                   class="text-right"
                   :class="isExpiringSoon() ? 'text-danger' : ''"
                 >
-                  {{ formatDate(contract.expiry_date) }}
+                  {{ formatDateTime(contract.expiry_date_in_original_timezone) }}
+                  {{ contract.expiry_timezone_display || contract.expiry_timezone || "-" }}
                 </strong>
               </b-list-group-item>
 
@@ -244,13 +245,11 @@
                     size="16"
                     class="mr-75 text-dark"
                   />
-                  <span class="text-dark">Timezone:</span>
+                  <span class="text-dark">Expires At (Your Time):</span>
                 </div>
-                <strong class="text-right">{{
-                  contract.expiry_timezone_display ||
-                  contract.expiry_timezone ||
-                  "-"
-                }}</strong>
+                <strong class="text-right" :class="isExpiringSoon() ? 'text-danger' : ''">
+                  {{ formatDateTime(contract.expiry_date) }}
+                </strong>
               </b-list-group-item>
 
               <b-list-group-item
